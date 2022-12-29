@@ -7,6 +7,9 @@ import org.rezatron.chess.constants.ChessPiece;
 
 import java.util.ArrayList;
 
+import static org.rezatron.chess.constants.ChessConstants.*;
+import static org.rezatron.chess.constants.MoveFlags.*;
+
 public class Board {
 
     private static final Logger log = LogManager.getLogger(Board.class);
@@ -18,39 +21,12 @@ public class Board {
 
 
     private long whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard, whiteKingBitBoard, whiteQueenBitBoard, blackRookBitBoard, blackKnightBitBoard, blackBishopBitBoard, blackKingBitBoard, blackQueenBitBoard, blackPawnBitBoard;
-    private boolean bkc, bqc, wkc, wqc;
+    private boolean blackKingSideCastle, blackQueenSideCastle, whiteKingSideCastle, whiteQueenSideCastle;
     private long fortyMoveCount;
     private boolean isWhitesTurn;
     private int moveCount;
 
-    private static final int[] order = {56, 57, 58, 59, 60, 61, 62, 63, 48,
-            49, 50, 51, 52, 53, 54, 55, 40, 41, 42, 43, 44, 45, 46, 47, 32, 33,
-            34, 35, 36, 37, 38, 39, 24, 25, 26, 27, 28, 29, 30, 31, 16, 17, 18,
-            19, 20, 21, 22, 23, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5,
-            6, 7};
 
-    String[] letterSquares = {"a1", "b1", "c1", "d1", "e1", "f1", "g1",
-            "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "a3",
-            "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4",
-            "d4", "e4", "f4", "g4", "h4", "a5", "b5", "c5", "d5", "e5",
-            "f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6",
-            "h6", "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8",
-            "b8", "c8", "d8", "e8", "f8", "g8", "h8"};
-
-    private static final long[] squares = {1L, 2L, 4L, 8L, 16L, 32L, 64L,
-            128L, 256L, 512L, 1024L, 2048L, 4096L, 8192L, 16384L, 32768L,
-            65536L, 131072L, 262144L, 524288L, 1048576L, 2097152L, 4194304L,
-            8388608L, 16777216L, 33554432L, 67108864L, 134217728L, 268435456L,
-            536870912L, 1073741824L, 2147483648L, 4294967296L, 8589934592L,
-            17179869184L, 34359738368L, 68719476736L, 137438953472L,
-            274877906944L, 549755813888L, 1099511627776L, 2199023255552L,
-            4398046511104L, 8796093022208L, 17592186044416L, 35184372088832L,
-            70368744177664L, 140737488355328L, 281474976710656L,
-            562949953421312L, 1125899906842624L, 2251799813685248L,
-            4503599627370496L, 9007199254740992L, 18014398509481984L,
-            36028797018963968L, 72057594037927936L, 144115188075855872L,
-            288230376151711744L, 576460752303423488L, 1152921504606846976L,
-            2305843009213693952L, 4611686018427387904L, -9223372036854775808L};
 
     public Board() {
         log.info("new  board");
@@ -72,7 +48,7 @@ public class Board {
         blackQueenBitBoard = 576460752303423488L;
         blackKingBitBoard = 1152921504606846976L;
 
-        bkc = bqc = wkc = wqc = true;
+        blackKingSideCastle = blackQueenSideCastle = whiteKingSideCastle = whiteQueenSideCastle = true;
         fortyMoveCount = 0;
         isWhitesTurn = true;
         // moves = "";
@@ -102,10 +78,10 @@ public class Board {
         blackQueenBitBoard = 0;
         blackKingBitBoard = 0;
 
-        wkc = false;
-        wqc = false;
-        bkc = false;
-        bqc = false;
+        whiteKingSideCastle = false;
+        whiteQueenSideCastle = false;
+        blackKingSideCastle = false;
+        blackQueenSideCastle = false;
         int charIndex = 0;
         int boardIndex = 0;
         while (fenString.charAt(charIndex) != ' ') {
@@ -183,29 +159,29 @@ public class Board {
                 case '-':
                     break;
                 case 'K':
-                    wkc = true;
+                    whiteKingSideCastle = true;
                     break;
                 case 'Q':
-                    wqc = true;
+                    whiteQueenSideCastle = true;
                     break;
                 case 'k':
-                    bkc = true;
+                    blackKingSideCastle = true;
                     break;
                 case 'q':
-                    bqc = true;
+                    blackQueenSideCastle = true;
                     break;
                 default:
                     break;
             }
         }
         if (pieceAtSquare(0) != ChessPiece.WHITE_ROOK)
-            wqc = false;
+            whiteQueenSideCastle = false;
         if (pieceAtSquare(7) != ChessPiece.WHITE_ROOK)
-            wkc = false;
+            whiteKingSideCastle = false;
         if (pieceAtSquare(56) != ChessPiece.BLACK_ROOK)
-            bqc = false;
+            blackQueenSideCastle = false;
         if (pieceAtSquare(63) != ChessPiece.BLACK_ROOK)
-            bkc = false;
+            blackKingSideCastle = false;
         enPassantTarget = "-";
         if (fenString.charAt(++charIndex) != '-') {
             enPassantTarget = fenString.substring(charIndex, charIndex + 2);
@@ -216,6 +192,135 @@ public class Board {
         moveCount = 0;
         updateHistory();
         moveCount = 1;
+    }
+
+    public void move(Move move) {
+        int from = move.getFrom();
+        int to = move.getTo();
+        int flag = move.getFlags();
+        log.trace("Move {} is a move from {} to {} with flags{}.", move, from, to, flag);
+        ChessPiece fromPiece = pieceAtSquare(from);
+        if (isWhitesTurn && flag == QUEEN_CASTLE_FLAG.getFlag()) {
+            fortyMoveCount = 0;
+            whiteKingBitBoard += (squares[6] - squares[4]);
+            whiteRookBitBoard += (squares[5] - squares[7]);
+        } else if (isWhitesTurn && flag == KING_CASTLE_FLAG.getFlag()) {
+            fortyMoveCount = 0;
+            whiteKingBitBoard += (squares[2] - squares[4]);
+            whiteRookBitBoard += (squares[3] - squares[0]);
+        } else if (!isWhitesTurn && flag == QUEEN_CASTLE_FLAG.getFlag()) {
+            fortyMoveCount = 0;
+            blackKingBitBoard += (squares[62] - squares[60]);
+            blackRookBitBoard += (squares[61] - squares[63]);
+        } else if (!isWhitesTurn && flag == KING_CASTLE_FLAG.getFlag()) {
+            fortyMoveCount = 0;
+            blackKingBitBoard += (squares[58] - squares[60]);
+            blackRookBitBoard += (squares[59] - squares[56]);
+        } else {
+            switch (fromPiece) {
+                case WHITE_PAWN -> {
+                    whitePawnBitBoard += (squares[to] - squares[from]);
+                    if (to - from == 16) {
+                        enPassantTarget = letterSquares[from + 8];
+                    }
+                    fortyMoveCount = 0;
+                }
+                case WHITE_ROOK -> whiteRookBitBoard += (squares[to] - squares[from]);
+                case WHITE_KNIGHT -> whiteKingBitBoard += (squares[to] - squares[from]);
+                case WHITE_BISHOP -> whiteBishopBitBoard += (squares[to] - squares[from]);
+                case WHITE_QUEEN -> whiteQueenBitBoard += (squares[to] - squares[from]);
+                case WHITE_KING -> whiteKingBitBoard += (squares[to] - squares[from]);
+                case BLACK_PAWN -> {
+                    blackPawnBitBoard += (squares[to] - squares[from]);
+                    fortyMoveCount = 0;
+                    if (from - to == 16) {
+                        enPassantTarget = letterSquares[from - 8];
+                    }
+                }
+                case BLACK_ROOK -> blackRookBitBoard += (squares[to] - squares[from]);
+                case BLACK_KNIGHT -> blackKingBitBoard += (squares[to] - squares[from]);
+                case BLACK_BISHOP -> blackBishopBitBoard += (squares[to] - squares[from]);
+                case BLACK_QUEEN -> blackQueenBitBoard += (squares[to] - squares[from]);
+                case BLACK_KING -> blackKingBitBoard += (squares[to] - squares[from]);
+                case EMPTY -> {
+                }
+            }
+            if (move.isCapture()) {
+                ChessPiece attackedPiece = pieceAtSquare(to);
+                switch (attackedPiece) {
+                    case EMPTY:
+                        break;
+                    case WHITE_PAWN:
+                        fortyMoveCount = 0;
+                        whitePawnBitBoard -= squares[to];
+                        break;
+                    case WHITE_ROOK:
+                        fortyMoveCount = 0;
+                        whiteRookBitBoard -= squares[to];
+                        break;
+                    case WHITE_KNIGHT:
+                        fortyMoveCount = 0;
+                        whiteKnightBitBoard -= squares[to];
+                        break;
+                    case WHITE_BISHOP:
+                        fortyMoveCount = 0;
+                        whiteBishopBitBoard -= squares[to];
+                        break;
+                    case WHITE_QUEEN:
+                        fortyMoveCount = 0;
+                        whiteQueenBitBoard -= squares[to];
+                        break;
+                    case BLACK_PAWN:
+                        fortyMoveCount = 0;
+                        blackPawnBitBoard -= squares[to];
+                        break;
+                    case BLACK_ROOK:
+                        fortyMoveCount = 0;
+                        blackRookBitBoard -= squares[to];
+                        break;
+                    case BLACK_KNIGHT:
+                        fortyMoveCount = 0;
+                        blackKnightBitBoard -= squares[to];
+                        break;
+                    case BLACK_BISHOP:
+                        fortyMoveCount = 0;
+                        blackBishopBitBoard -= squares[to];
+                        break;
+                    case BLACK_QUEEN:
+                        fortyMoveCount = 0;
+                        blackQueenBitBoard -= squares[to];
+                        break;
+                }
+            }
+        }
+
+        //set castle flags
+        if (from == 0 || to == 0) {
+            whiteQueenSideCastle = false;
+        }
+        if (from == 7 || to == 7) {
+            whiteKingSideCastle = false;
+        }
+        if (from == 56 || to == 56) {
+            blackQueenSideCastle = false;
+        }
+        if (from == 63 || to == 63) {
+            blackKingSideCastle = false;
+        }
+        if (from == 4) {
+            whiteKingSideCastle = false;
+            whiteQueenSideCastle = false;
+        }
+        if (from == 60) {
+            blackKingSideCastle = false;
+            blackQueenSideCastle = false;
+        }
+
+
+        isWhitesTurn = !isWhitesTurn;
+        updateHistory();
+        // moves[moveCount] = move;
+        moveCount++;
     }
 
     private void updateHistory() {
@@ -237,10 +342,10 @@ public class Board {
         history.add(blackBishopBitBoard);
         history.add(blackQueenBitBoard);
         history.add(blackKingBitBoard);
-        history.add((wkc ? 1L : 0L));
-        history.add((wqc ? 1L : 0L));
-        history.add((bkc ? 1L : 0L));
-        history.add((bqc ? 1L : 0L));
+        history.add((whiteKingSideCastle ? 1L : 0L));
+        history.add((whiteQueenSideCastle ? 1L : 0L));
+        history.add((blackKingSideCastle ? 1L : 0L));
+        history.add((blackQueenSideCastle ? 1L : 0L));
         enPassantTargetHistory.add(enPassantTarget);
         history.add(fortyMoveCount);
 
@@ -292,6 +397,119 @@ public class Board {
         return printBoard;
     }
 
+    public String getFEN() {
+        StringBuilder ans = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < order.length; i++) {
+
+            switch (pieceAtSquare(order[i])) {
+                case WHITE_PAWN -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("P");
+                    count = 0;
+                }
+                case WHITE_ROOK -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("R");
+                    count = 0;
+                }
+                case WHITE_KNIGHT -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("N");
+                    count = 0;
+                }
+                case WHITE_BISHOP -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("B");
+                    count = 0;
+                }
+                case WHITE_QUEEN -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("Q");
+                    count = 0;
+                }
+                case WHITE_KING -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("K");
+                    count = 0;
+                }
+                case BLACK_PAWN -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("p");
+                    count = 0;
+                }
+                case BLACK_ROOK -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("r");
+                    count = 0;
+                }
+                case BLACK_KNIGHT -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("n");
+                    count = 0;
+                }
+                case BLACK_BISHOP -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("b");
+                    count = 0;
+                }
+                case BLACK_QUEEN -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("q");
+                    count = 0;
+                }
+                case BLACK_KING -> {
+                    if (count > 0)
+                        ans.append(count);
+                    ans.append("k");
+                    count = 0;
+                }
+                case EMPTY -> {
+                    count++;
+                }
+
+            }
+            if (i % 8 == 7 && i < 60) {
+                if (count > 0)
+                    ans.append(count);
+                ans.append("/");
+                count = 0;
+            }
+        }
+        if (count != 0)
+            ans.append(count);
+        if (isWhitesTurn)
+            ans.append(" w ");
+        else
+            ans.append(" b ");
+        if (whiteKingSideCastle)
+            ans.append("K");
+        if (whiteQueenSideCastle)
+            ans.append("Q");
+        if (blackKingSideCastle)
+            ans.append("k");
+        if (blackQueenSideCastle)
+            ans.append("q");
+        if (!(whiteKingSideCastle || whiteQueenSideCastle || blackKingSideCastle || blackQueenSideCastle)) {
+            ans.append("-");
+        }
+
+        ans.append(" ").append(enPassantTarget);
+        ans.append(" ").append(fortyMoveCount).append(" ").append((1 + moveCount) / 2);
+        return ans.toString();
+    }
+
     public ChessPiece pieceAtSquare(int square) {
         if (((whitePawnBitBoard >> square) & 1) == 1)
             return ChessPiece.WHITE_PAWN;
@@ -321,6 +539,27 @@ public class Board {
         return ChessPiece.EMPTY;
     }
 
+    public boolean isSquareEmpty(int square) {
+        long all = getOccupiedBitBoard();
+        return ((all >> square) & 1) != 1;
+    }
+
+
+    public long getWhiteBitBoard() {
+        return whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard | whitePawnBitBoard;
+    }
+
+    public long getBlackBitBoard() {
+        return blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard | blackPawnBitBoard;
+    }
+
+    public long getOccupiedBitBoard() {
+        return whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard | whitePawnBitBoard | blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard | blackPawnBitBoard;
+    }
+
+    public long getEmptyBitBoard() {
+        return ~(whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard | whitePawnBitBoard | blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard | blackPawnBitBoard);
+    }
 
     public long getWhitePawnBitBoard() {
         return whitePawnBitBoard;
@@ -368,5 +607,26 @@ public class Board {
 
     public long getBlackPawnBitBoard() {
         return blackPawnBitBoard;
+    }
+
+    public boolean canBlackKingSideCastle() {
+        return blackKingSideCastle;
+    }
+
+    public boolean canBlackQueenSideCastle() {
+        return blackQueenSideCastle;
+    }
+
+    public boolean canWhiteKingSideCastle() {
+        return whiteKingSideCastle;
+    }
+
+    public boolean canWhiteQueenSideCastle() {
+        return whiteQueenSideCastle;
+    }
+
+    public boolean isWhitesTurn()
+    {
+        return isWhitesTurn;
     }
 }
