@@ -1,11 +1,22 @@
 package org.rezatron.chess;
 
 import junit.framework.TestCase;
+import org.rezatron.chess.constants.MoveFlags;
 
 
+import static org.rezatron.chess.Perft.divide;
 import static org.rezatron.chess.Perft.perft;
 
 public class PerftTest extends TestCase {
+
+    public void testDivide1() {
+        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        b.move(new Move(10,26,MoveFlags.QUITE_MOVE_FLAG));
+        b.move(new Move(48,32,MoveFlags.QUITE_MOVE_FLAG));
+        b.move(new Move(3,24,MoveFlags.CAPTURE_FLAG));
+        System.out.println(b);
+       System.out.println(divide(b,2));
+    }
 
     public void testPerft1() {
         Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");

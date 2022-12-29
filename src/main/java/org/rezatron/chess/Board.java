@@ -194,9 +194,76 @@ public class Board {
         moveCount = 1;
     }
 
+    public void undo() {
+        isWhitesTurn = !isWhitesTurn;
+
+        enPassantTargetHistory.remove(enPassantTargetHistory.size() - 1);
+        enPassantTarget = enPassantTargetHistory.get(enPassantTargetHistory
+                .size() - 1);
+
+        for (int i = 0; i < 17; i++) {
+            history.remove(history.size() - 1);
+        }
+
+        fortyMoveCount = (history.get(history.size() - 1));
+        // history.remove(history.size()-1);
+
+        blackQueenSideCastle = (history.get(history.size() - 2)) != 0;
+        // history.remove(history.size()-1);
+        blackKingSideCastle = (history.get(history.size() - 3)) != 0;
+        // history.remove(history.size()-1);
+        whiteQueenSideCastle = (history.get(history.size() - 4)) != 0;
+        // history.remove(history.size()-1);
+        whiteKingSideCastle = (history.get(history.size() - 5)) != 0;
+        // history.remove(history.size()-1);
+
+        blackKingBitBoard = (history.get(history.size() - 6));
+        // history.remove(history.size()-1);
+
+        blackQueenBitBoard = (history.get(history.size() - 7));
+        // history.remove(history.size()-1);
+
+        blackBishopBitBoard = (history.get(history.size() - 8));
+        // history.remove(history.size()-1);
+
+        blackKnightBitBoard = (history.get(history.size() - 9));
+        // history.remove(history.size()-1);
+
+        blackRookBitBoard = (history.get(history.size() - 10));
+        // history.remove(history.size()-1);
+
+        blackPawnBitBoard = (history.get(history.size() - 11));
+        // history.remove(history.size()-1);
+
+        whiteKingBitBoard = (history.get(history.size() - 12));
+        // history.remove(history.size()-1);
+
+        whiteQueenBitBoard = (history.get(history.size() - 13));
+        // history.remove(history.size()-1);
+
+        whiteBishopBitBoard = (history.get(history.size() - 14));
+        // history.remove(history.size()-1);
+
+        whiteKnightBitBoard = (history.get(history.size() - 15));
+        // history.remove(history.size()-1);
+
+        whiteRookBitBoard = (history.get(history.size() - 16));
+        // history.remove(history.size()-1);
+
+        whitePawnBitBoard = (history.get(history.size() - 17));
+        // history.remove(history.size()-1);
+        moveCount -= 1;
+        // wp + "," + wr + "," + wn + "," + wb + "," + wq
+        // + "," + wk + "," + bp + "," + br + "," + bn + "," + bb + ","
+        // + bq + "," + bk + "," + wkc + "," + wqc + "," + bkc + "," + bqc
+        // + "," + enPassantTarget + "," + fortyMoveCount
+
+    }
+
     public void move(Move move) {
         int from = move.getFrom();
         int to = move.getTo();
+        ChessPiece attackedPiece = pieceAtSquare(to);
         int flag = move.getFlags();
         log.trace("Move {} is a move from {} to {} with flags{}.", move, from, to, flag);
         ChessPiece fromPiece = pieceAtSquare(from);
@@ -226,7 +293,7 @@ public class Board {
                     fortyMoveCount = 0;
                 }
                 case WHITE_ROOK -> whiteRookBitBoard += (squares[to] - squares[from]);
-                case WHITE_KNIGHT -> whiteKingBitBoard += (squares[to] - squares[from]);
+                case WHITE_KNIGHT -> whiteKnightBitBoard += (squares[to] - squares[from]);
                 case WHITE_BISHOP -> whiteBishopBitBoard += (squares[to] - squares[from]);
                 case WHITE_QUEEN -> whiteQueenBitBoard += (squares[to] - squares[from]);
                 case WHITE_KING -> whiteKingBitBoard += (squares[to] - squares[from]);
@@ -238,7 +305,7 @@ public class Board {
                     }
                 }
                 case BLACK_ROOK -> blackRookBitBoard += (squares[to] - squares[from]);
-                case BLACK_KNIGHT -> blackKingBitBoard += (squares[to] - squares[from]);
+                case BLACK_KNIGHT -> blackKnightBitBoard += (squares[to] - squares[from]);
                 case BLACK_BISHOP -> blackBishopBitBoard += (squares[to] - squares[from]);
                 case BLACK_QUEEN -> blackQueenBitBoard += (squares[to] - squares[from]);
                 case BLACK_KING -> blackKingBitBoard += (squares[to] - squares[from]);
@@ -246,7 +313,6 @@ public class Board {
                 }
             }
             if (move.isCapture()) {
-                ChessPiece attackedPiece = pieceAtSquare(to);
                 switch (attackedPiece) {
                     case EMPTY:
                         break;
@@ -475,9 +541,7 @@ public class Board {
                     ans.append("k");
                     count = 0;
                 }
-                case EMPTY -> {
-                    count++;
-                }
+                case EMPTY -> count++;
 
             }
             if (i % 8 == 7 && i < 60) {
@@ -629,4 +693,6 @@ public class Board {
     {
         return isWhitesTurn;
     }
+
+
 }
