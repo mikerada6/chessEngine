@@ -8,7 +8,6 @@ import static org.rezatron.chess.constants.MoveFlags.*;
 public class Move {
 
 
-
     private final int move;
 
     public Move(int from, int to, MoveFlags flag) {
@@ -58,32 +57,24 @@ public class Move {
         return move;
     }
 
-    public String toString()
-    {
+    public String toString() {
 //        if(getFlags()== KING_CASTLE_FLAG.getFlag())
 //            return "0-0";
 //        if(getFlags()== QUEEN_CASTLE_FLAG.getFlag())
 //            return "0-0-0";
         String ans = "";
-        ans+=letterSquares[getFrom()];
+        ans += letterSquares[getFrom()];
 //        if(isCapture())
 //            ans+="x";
-        ans+=letterSquares[getTo()];
-        if(getFlags()== QUEEN_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags()== QUEEN_PROMOTION_FLAG.getFlag())
-        {
-            ans+="=Q";
-        }
-        else if(getFlags()== ROOK_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags()== ROOK_PROMOTION_FLAG.getFlag())
-        {
-            ans+="=R";
-        }
-        else if(getFlags()== KNIGHT_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags()== KNIGHT_PROMOTION_FLAG.getFlag())
-        {
-            ans+="=N";
-        }
-        else if(getFlags()== BISHOP_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags()== BISHOP_PROMOTION_FLAG.getFlag())
-        {
-            ans+="=B";
+        ans += letterSquares[getTo()];
+        if (getFlags() == QUEEN_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags() == QUEEN_PROMOTION_FLAG.getFlag()) {
+            ans += "=Q";
+        } else if (getFlags() == ROOK_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags() == ROOK_PROMOTION_FLAG.getFlag()) {
+            ans += "=R";
+        } else if (getFlags() == KNIGHT_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags() == KNIGHT_PROMOTION_FLAG.getFlag()) {
+            ans += "=N";
+        } else if (getFlags() == BISHOP_PROMOTION_CAPTURE_FLAG.getFlag() || getFlags() == BISHOP_PROMOTION_FLAG.getFlag()) {
+            ans += "=B";
         }
         return ans;
     }

@@ -4,12 +4,8 @@ import com.google.common.base.Stopwatch;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.rezatron.chess.constants.MoveFlags;
 
-
-import static org.rezatron.chess.Perft.divide;
 import static org.rezatron.chess.Perft.perft;
-import static org.rezatron.chess.constants.MoveFlags.*;
 
 public class PerftTest extends TestCase {
 
@@ -33,7 +29,7 @@ public class PerftTest extends TestCase {
             log.info("Perft ({}): {} nodes, Time {}, [{}], OK", depth, nodes, stopwatch, expected);
         else
             log.error("Perft ({}): {} nodes, Time {}, [{}], FALSE", depth, nodes, stopwatch, expected);
-        assertEquals(b.getFEN() +" for depth " + depth, expected,nodes);
+        assertEquals(b.getFEN() + " for depth " + depth, expected, nodes);
 
     }
 
@@ -1557,7 +1553,7 @@ public class PerftTest extends TestCase {
         runPerftTest(2039, b, 2);
         runPerftTest(97862, b, 3);
         runPerftTest(4085603, b, 4);
-        runPerftTest(193690690, b, 5) ;
+        runPerftTest(193690690, b, 5);
     }
 
 

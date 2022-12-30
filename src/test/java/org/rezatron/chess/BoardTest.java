@@ -1,7 +1,6 @@
 package org.rezatron.chess;
 
 import junit.framework.TestCase;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
@@ -286,11 +285,12 @@ public class BoardTest extends TestCase {
 
         assertFalse(b.isWhitesTurn());
     }
-        public void testMove2(){
+
+    public void testMove2() {
         Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         String beofre = b.toString();
         ArrayList<Move> moves = MoveGenerator.getWhiteMoves(b);
-        b.move(new Move(11,20,QUITE_MOVE_FLAG));
+        b.move(new Move(11, 20, QUITE_MOVE_FLAG));
         String newBoard = """
                    +---+---+---+---+---+---+---+---+
                 8  |*r*|   |   |   |*k*|   |   |*r*|
@@ -312,12 +312,12 @@ public class BoardTest extends TestCase {
                      a   b   c   d   e   f   g   h""";
 
 
-            assertEquals(newBoard,b.toString());
-            assertEquals("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N1BQ1p/PPP1BPPP/R3K2R b KQkq - 0 1",b.getFEN());
+        assertEquals(newBoard, b.toString());
+        assertEquals("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N1BQ1p/PPP1BPPP/R3K2R b KQkq - 0 1", b.getFEN());
 
-            b.undo();
+        b.undo();
 
-            assertEquals(beofre,b.toString());
+        assertEquals(beofre, b.toString());
     }
 
 }

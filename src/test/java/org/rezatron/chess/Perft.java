@@ -1,6 +1,5 @@
 package org.rezatron.chess;
 
-import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

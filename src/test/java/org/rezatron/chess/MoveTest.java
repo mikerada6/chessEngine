@@ -5,7 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.rezatron.chess.constants.MoveFlags;
 
-import static org.rezatron.chess.constants.MoveFlags.*;
+import static org.rezatron.chess.constants.MoveFlags.DOUBLE_PAWN_PUSH_FLAG;
 
 public class MoveTest extends TestCase {
 

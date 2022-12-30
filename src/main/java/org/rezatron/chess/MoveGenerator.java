@@ -3,12 +3,10 @@ package org.rezatron.chess;
 import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.rezatron.chess.constants.ChessPiece;
 import org.rezatron.chess.constants.MoveFlags;
 
 import java.util.ArrayList;
-
 
 import static org.rezatron.chess.constants.ChessConstants.*;
 import static org.rezatron.chess.constants.MoveFlags.*;
@@ -51,8 +49,8 @@ public class MoveGenerator {
 
         long whitePawnPushOne = (wp << 8) & empty;
         long whitePawnPushTwo = (((((wp << 8) & empty) << 8) & rankMask[3])) & empty;
-        long whitePawnAttackLeft = whitePawnAttackLeft( b) & them;
-        long whitePawnAttackRight = whitePawnAttackRight(b)& them;
+        long whitePawnAttackLeft = whitePawnAttackLeft(b) & them;
+        long whitePawnAttackRight = whitePawnAttackRight(b) & them;
 
         long moveOne = whitePawnPushOne & ~rankMask[7];
         long promoteMove = whitePawnPushOne & rankMask[7];
@@ -156,7 +154,7 @@ public class MoveGenerator {
             int to = Long.numberOfTrailingZeros(temp);
             int from = (to - 7);
 
-            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            Move move = new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
             log.trace("Making an enPassant left from {} to {} - {}", from, to, move);
             moves.add(move);
         }
@@ -166,7 +164,7 @@ public class MoveGenerator {
             int to = Long.numberOfTrailingZeros(temp);
             int from = (to - 9);
 
-            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            Move move = new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
             log.trace("Making an enPassant right from {} to {} - {}", from, to, move);
             moves.add(move);
         }
@@ -192,7 +190,7 @@ public class MoveGenerator {
         long blackPawnPushOne = (bp >> 8) & empty;
         long blackPawnPushTwo = (((((bp >> 8) & empty) >> 8) & rankMask[4])) & empty;
         long blackPawnAttackLeft = blackPawnAttackLeft(b) & them;
-        long blackPawnAttackRight = blackPawnAttackRight(b)& them;
+        long blackPawnAttackRight = blackPawnAttackRight(b) & them;
 
         long moveOne = blackPawnPushOne & ~rankMask[7];
         long promoteMove = blackPawnPushOne & rankMask[7];
@@ -293,7 +291,7 @@ public class MoveGenerator {
             int to = Long.numberOfTrailingZeros(temp);
             int from = (to + 7);
 
-            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            Move move = new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
             log.trace("Making an enPassant left from {} to {} - {}", from, to, move);
             moves.add(move);
         }
@@ -303,7 +301,7 @@ public class MoveGenerator {
             int to = Long.numberOfTrailingZeros(temp);
             int from = (to + 9);
 
-            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            Move move = new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
             log.trace("Making an enPassant right from {} to {} - {}", from, to, move);
             moves.add(move);
         }
@@ -316,17 +314,17 @@ public class MoveGenerator {
 
     private static long whitePawnAttackLeft(Board b) {
         long wp = b.getWhitePawnBitBoard();
-        return ((wp << 7) & ~FILE_H) ;
+        return ((wp << 7) & ~FILE_H);
     }
 
     private static long whitePawnAttackRight(Board b) {
         long wp = b.getWhitePawnBitBoard();
-        return ((wp << 9) & ~FILE_A) ;
+        return ((wp << 9) & ~FILE_A);
     }
 
     private static long blackPawnAttackLeft(Board b) {
         long bp = b.getBlackPawnBitBoard();
-        return ((bp >> 7) & ~FILE_A) ;
+        return ((bp >> 7) & ~FILE_A);
     }
 
     private static long blackPawnAttackRight(Board b) {
@@ -395,10 +393,10 @@ public class MoveGenerator {
         long attacks = blackPawnAttackLeft(b) | blackPawnAttackRight(b)
                 | getBlackMovement(b);
 
-        if (b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6) && !isAttackedby(4, attacks)&& !isAttackedby(5, attacks)&& !isAttackedby(6, attacks)) {
+        if (b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6) && !isAttackedby(4, attacks) && !isAttackedby(5, attacks) && !isAttackedby(6, attacks)) {
             moves.add(new Move(4, 6, KING_CASTLE_FLAG));
         }
-        if (b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3)&&  !isAttackedby(2, attacks)&& !isAttackedby(3, attacks)&& !isAttackedby(4, attacks)) {
+        if (b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3) && !isAttackedby(2, attacks) && !isAttackedby(3, attacks) && !isAttackedby(4, attacks)) {
             moves.add(new Move(4, 2, QUEEN_CASTLE_FLAG));
         }
 
@@ -440,10 +438,10 @@ public class MoveGenerator {
 
         long attacks = whitePawnAttackLeft(b) | whitePawnAttackRight(b)
                 | getWhiteMovement(b);
-        if (b.canBlackKingSideCastle() && b.isSquareEmpty(61) && b.isSquareEmpty(62)&& !isAttackedby(60, attacks)&& !isAttackedby(61, attacks)&& !isAttackedby(62, attacks)) {
+        if (b.canBlackKingSideCastle() && b.isSquareEmpty(61) && b.isSquareEmpty(62) && !isAttackedby(60, attacks) && !isAttackedby(61, attacks) && !isAttackedby(62, attacks)) {
             moves.add(new Move(60, 62, KING_CASTLE_FLAG));
         }
-        if (b.canBlackQueenSideCastle() && b.isSquareEmpty(57) && b.isSquareEmpty(58) && b.isSquareEmpty(59)&& !isAttackedby(58, attacks)&& !isAttackedby(59, attacks)&& !isAttackedby(60, attacks)) {
+        if (b.canBlackQueenSideCastle() && b.isSquareEmpty(57) && b.isSquareEmpty(58) && b.isSquareEmpty(59) && !isAttackedby(58, attacks) && !isAttackedby(59, attacks) && !isAttackedby(60, attacks)) {
             moves.add(new Move(60, 58, QUEEN_CASTLE_FLAG));
         }
 
@@ -655,8 +653,7 @@ public class MoveGenerator {
         return moves;
     }
 
-    private static long getKingMovement(Board b, int square)
-    {
+    private static long getKingMovement(Board b, int square) {
         long movesBitBoard;
 
         if (square > 9) {
@@ -675,8 +672,7 @@ public class MoveGenerator {
     private static ArrayList<Move> legalizeMoves(Board b, ArrayList<Move> pseudoLegalMoves) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> legalMoves = new ArrayList<>();
-        for(Move m: pseudoLegalMoves)
-        {
+        for (Move m : pseudoLegalMoves) {
             b.move(m);
             if (b.isWhitesTurn() && isBlackChecked(b)) {
                 log.trace("{} is an illegal move.", m);
@@ -693,7 +689,7 @@ public class MoveGenerator {
         return legalMoves;
     }
 
-    private static  boolean isWhiteChecked(Board b) {
+    private static boolean isWhiteChecked(Board b) {
         long attacks = blackPawnAttackLeft(b) | blackPawnAttackRight(b)
                 | getBlackMovement(b);
         return isAttackedby(b.getWhiteKingSquare(), attacks);
@@ -741,21 +737,6 @@ public class MoveGenerator {
         return (squares[square] & attack) != 0;
     }
 
-    private int countBits(long x) {
-        long m1 = 0x5555555555555555L; // binary: 0101...
-        long m2 = 0x3333333333333333L; // binary: 00110011..
-        long m4 = 0x0f0f0f0f0f0f0f0fL; // binary: 4 zeros, 4 ones ...
-
-        x -= (x >> 1) & m1; // put count of each 2 bits into those 2 bits
-        x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4
-        // bits
-        x = (x + (x >> 4)) & m4; // put count of each 8 bits into those 8 bits
-        x += x >> 8; // put count of each 16 bits into their lowest 8 bits
-        x += x >> 16; // put count of each 32 bits into their lowest 8 bits
-        x += x >> 32; // put count of each 64 bits into their lowest 8 bits
-        return (int) (x & 0x7fL);
-    }
-
     private static long getLong(String square) {
         for (int i = 0; i < letterSquares.length; i++) {
             if (square.equalsIgnoreCase(letterSquares[i])) {
@@ -786,6 +767,21 @@ public class MoveGenerator {
         }
         printBoard += "     a   b   c   d   e   f   g   h \n\n";
         return printBoard;
+    }
+
+    private int countBits(long x) {
+        long m1 = 0x5555555555555555L; // binary: 0101...
+        long m2 = 0x3333333333333333L; // binary: 00110011..
+        long m4 = 0x0f0f0f0f0f0f0f0fL; // binary: 4 zeros, 4 ones ...
+
+        x -= (x >> 1) & m1; // put count of each 2 bits into those 2 bits
+        x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4
+        // bits
+        x = (x + (x >> 4)) & m4; // put count of each 8 bits into those 8 bits
+        x += x >> 8; // put count of each 16 bits into their lowest 8 bits
+        x += x >> 16; // put count of each 32 bits into their lowest 8 bits
+        x += x >> 32; // put count of each 64 bits into their lowest 8 bits
+        return (int) (x & 0x7fL);
     }
 
 }

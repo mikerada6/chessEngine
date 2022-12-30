@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.constants.ChessPiece;
 
-
 import java.util.ArrayList;
 
 import static org.rezatron.chess.constants.ChessConstants.*;
@@ -15,9 +14,9 @@ public class Board {
     private static final Logger log = LogManager.getLogger(Board.class);
 
     private String enPassantTarget;
-    private ArrayList<Long> history;
-    private ArrayList<String> enPassantTargetHistory;
-    private int[] moves;
+    private final ArrayList<Long> history;
+    private final ArrayList<String> enPassantTargetHistory;
+    private final int[] moves;
 
 
     private long whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard, whiteKingBitBoard, whiteQueenBitBoard, blackRookBitBoard, blackKnightBitBoard, blackBishopBitBoard, blackKingBitBoard, blackQueenBitBoard, blackPawnBitBoard;
@@ -285,10 +284,10 @@ public class Board {
             blackRookBitBoard += (squares[59] - squares[56]);
         } else if (isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
             whitePawnBitBoard += (squares[to] - squares[from]);
-            blackPawnBitBoard -=  squares[to - 8];
+            blackPawnBitBoard -= squares[to - 8];
         } else if (!isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
             blackPawnBitBoard += (squares[to] - squares[from]);
-            whitePawnBitBoard -=  squares[to + 8];
+            whitePawnBitBoard -= squares[to + 8];
         } else {
             switch (fromPiece) {
                 case WHITE_PAWN -> {
