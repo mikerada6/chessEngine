@@ -27,7 +27,6 @@ public class Board {
     private int moveCount;
 
 
-
     public Board() {
         log.info("new  board");
         enPassantTarget = "-";
@@ -263,26 +262,33 @@ public class Board {
     public void move(Move move) {
         int from = move.getFrom();
         int to = move.getTo();
+        enPassantTarget = "-";
         ChessPiece attackedPiece = pieceAtSquare(to);
         int flag = move.getFlags();
         log.trace("Move {} is a move from {} to {} with flags{}.", move, from, to, flag);
         ChessPiece fromPiece = pieceAtSquare(from);
-        if (isWhitesTurn && flag == QUEEN_CASTLE_FLAG.getFlag()) {
+        if (isWhitesTurn && flag == KING_CASTLE_FLAG.getFlag()) {
             fortyMoveCount = 0;
             whiteKingBitBoard += (squares[6] - squares[4]);
             whiteRookBitBoard += (squares[5] - squares[7]);
-        } else if (isWhitesTurn && flag == KING_CASTLE_FLAG.getFlag()) {
+        } else if (isWhitesTurn && flag == QUEEN_CASTLE_FLAG.getFlag()) {
             fortyMoveCount = 0;
             whiteKingBitBoard += (squares[2] - squares[4]);
             whiteRookBitBoard += (squares[3] - squares[0]);
-        } else if (!isWhitesTurn && flag == QUEEN_CASTLE_FLAG.getFlag()) {
+        } else if (!isWhitesTurn && flag == KING_CASTLE_FLAG.getFlag()) {
             fortyMoveCount = 0;
             blackKingBitBoard += (squares[62] - squares[60]);
             blackRookBitBoard += (squares[61] - squares[63]);
-        } else if (!isWhitesTurn && flag == KING_CASTLE_FLAG.getFlag()) {
+        } else if (!isWhitesTurn && flag == QUEEN_CASTLE_FLAG.getFlag()) {
             fortyMoveCount = 0;
             blackKingBitBoard += (squares[58] - squares[60]);
             blackRookBitBoard += (squares[59] - squares[56]);
+        } else if (isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
+            whitePawnBitBoard += (squares[to] - squares[from]);
+            blackPawnBitBoard -=  squares[to - 8];
+        } else if (!isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
+            blackPawnBitBoard += (squares[to] - squares[from]);
+            whitePawnBitBoard -=  squares[to + 8];
         } else {
             switch (fromPiece) {
                 case WHITE_PAWN -> {
@@ -689,9 +695,12 @@ public class Board {
         return whiteQueenSideCastle;
     }
 
-    public boolean isWhitesTurn()
-    {
+    public boolean isWhitesTurn() {
         return isWhitesTurn;
+    }
+
+    public String getEnPassantTarget() {
+        return enPassantTarget;
     }
 
     public int getWhiteKingSquare() {
@@ -701,7 +710,6 @@ public class Board {
     public int getBlackKingSquare() {
         return Long.numberOfTrailingZeros(blackKingBitBoard);
     }
-
 
 
 }

@@ -43,7 +43,6 @@ public class MoveGenerator {
 
     public static ArrayList<Move> getWhitePawnMoves(Board b) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        //TODO deal with en Passant
         ArrayList<Move> moves = new ArrayList<>();
 
         long wp = b.getWhitePawnBitBoard();
@@ -52,8 +51,8 @@ public class MoveGenerator {
 
         long whitePawnPushOne = (wp << 8) & empty;
         long whitePawnPushTwo = (((((wp << 8) & empty) << 8) & rankMask[3])) & empty;
-        long whitePawnAttackLeft = whitePawnAttackLeft( b);
-        long whitePawnAttackRight = whitePawnAttackRight(b);
+        long whitePawnAttackLeft = whitePawnAttackLeft( b) & them;
+        long whitePawnAttackRight = whitePawnAttackRight(b)& them;
 
         long moveOne = whitePawnPushOne & ~rankMask[7];
         long promoteMove = whitePawnPushOne & rankMask[7];
@@ -61,6 +60,9 @@ public class MoveGenerator {
         long whitePawnAttackRightNormal = whitePawnAttackRight & ~rankMask[7];
         long whitePawnAttackLeftPromote = whitePawnAttackLeft & rankMask[7];
         long whitePawnAttackRightPromote = whitePawnAttackRight & rankMask[7];
+
+        long enPassantLeft = whiteEnPassantLeft(b);
+        long enPassantRight = whiteEnPassantRight(b);
 
 
         for (long temp = moveOne; temp != 0; temp -= 1L << Long
@@ -148,6 +150,26 @@ public class MoveGenerator {
             moves.add(moveBishop);
             moves.add(moveQueen);
         }
+
+        for (long temp = enPassantLeft; temp != 0; temp -= 1L << Long
+                .numberOfTrailingZeros(temp)) {
+            int to = Long.numberOfTrailingZeros(temp);
+            int from = (to - 7);
+
+            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            log.trace("Making an enPassant left from {} to {} - {}", from, to, move);
+            moves.add(move);
+        }
+
+        for (long temp = enPassantRight; temp != 0; temp -= 1L << Long
+                .numberOfTrailingZeros(temp)) {
+            int to = Long.numberOfTrailingZeros(temp);
+            int from = (to - 9);
+
+            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            log.trace("Making an enPassant right from {} to {} - {}", from, to, move);
+            moves.add(move);
+        }
         stopwatch.stop(); // optional
 
         log.debug("white pawn movement took : {}", stopwatch);
@@ -157,16 +179,20 @@ public class MoveGenerator {
 
     public static ArrayList<Move> getBlackPawnMoves(Board b) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        //TODO deal with en Passant
+
         ArrayList<Move> moves = new ArrayList<>();
 
         long bp = b.getBlackPawnBitBoard();
         long empty = b.getEmptyBitBoard();
+        long them = b.getWhiteBitBoard();
+
+        long enPassantLeft = blackEnPassantLeft(b);
+        long enPassantRight = blackEnPassantRight(b);
 
         long blackPawnPushOne = (bp >> 8) & empty;
         long blackPawnPushTwo = (((((bp >> 8) & empty) >> 8) & rankMask[4])) & empty;
-        long blackPawnAttackLeft = blackPawnAttackLeft(b);
-        long blackPawnAttackRight = blackPawnAttackRight(b);
+        long blackPawnAttackLeft = blackPawnAttackLeft(b) & them;
+        long blackPawnAttackRight = blackPawnAttackRight(b)& them;
 
         long moveOne = blackPawnPushOne & ~rankMask[7];
         long promoteMove = blackPawnPushOne & rankMask[7];
@@ -228,7 +254,7 @@ public class MoveGenerator {
         for (long temp = whitePawnAttackLeftPromote; temp != 0; temp -= 1L << Long
                 .numberOfTrailingZeros(temp)) {
             int to = Long.numberOfTrailingZeros(temp);
-            int from = to + 7;
+            int from = to - 7;
             Move moveRook = new Move(from, to, MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG);
             Move moveKnight = new Move(from, to, MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG);
             Move moveBishop = new Move(from, to, MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG);
@@ -261,6 +287,26 @@ public class MoveGenerator {
             moves.add(moveBishop);
             moves.add(moveQueen);
         }
+
+        for (long temp = enPassantLeft; temp != 0; temp -= 1L << Long
+                .numberOfTrailingZeros(temp)) {
+            int to = Long.numberOfTrailingZeros(temp);
+            int from = (to + 7);
+
+            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            log.trace("Making an enPassant left from {} to {} - {}", from, to, move);
+            moves.add(move);
+        }
+
+        for (long temp = enPassantRight; temp != 0; temp -= 1L << Long
+                .numberOfTrailingZeros(temp)) {
+            int to = Long.numberOfTrailingZeros(temp);
+            int from = (to + 9);
+
+            Move move= new Move(from, to, MoveFlags.EP_CAPTURE_FLAG);
+            log.trace("Making an enPassant right from {} to {} - {}", from, to, move);
+            moves.add(move);
+        }
         stopwatch.stop(); // optional
 
         log.debug("white pawn movement took : {}", stopwatch);
@@ -270,33 +316,52 @@ public class MoveGenerator {
 
     private static long whitePawnAttackLeft(Board b) {
         long wp = b.getWhitePawnBitBoard();
-        long them = b.getBlackBitBoard();
-
-        return ((wp << 7) & ~FILE_H) & them;
+        return ((wp << 7) & ~FILE_H) ;
     }
 
     private static long whitePawnAttackRight(Board b) {
         long wp = b.getWhitePawnBitBoard();
-        long them = b.getBlackBitBoard();
-
-        return ((wp << 9) & ~FILE_A) & them;
+        return ((wp << 9) & ~FILE_A) ;
     }
 
     private static long blackPawnAttackLeft(Board b) {
         long bp = b.getBlackPawnBitBoard();
-        long them = b.getWhiteBitBoard();
-
-        return ((bp >> 7) & ~FILE_A) & them;
+        return ((bp >> 7) & ~FILE_A) ;
     }
 
     private static long blackPawnAttackRight(Board b) {
         long bp = b.getBlackPawnBitBoard();
-        long them = b.getWhiteBitBoard();
-
-        return ((bp >> 9) & ~FILE_H) & them;
+        return ((bp >> 9) & ~FILE_H);
     }
 
+    private static long blackEnPassantLeft(Board b) {
+        String enPassantTarget = b.getEnPassantTarget();
+        if (enPassantTarget.equals("-") || b.isWhitesTurn())
+            return 0L;
+        return getLong(enPassantTarget) & blackPawnAttackLeft(b);
+    }
 
+    private static long blackEnPassantRight(Board b) {
+        String enPassantTarget = b.getEnPassantTarget();
+        if (enPassantTarget.equals("-") || b.isWhitesTurn())
+            return 0L;
+        toString(getLong(enPassantTarget) & blackPawnAttackRight(b));
+        return getLong(enPassantTarget) & blackPawnAttackRight(b);
+    }
+
+    private static long whiteEnPassantLeft(Board b) {
+        String enPassantTarget = b.getEnPassantTarget();
+        if (enPassantTarget.equals("-") || !b.isWhitesTurn())
+            return 0L;
+        return getLong(enPassantTarget) & whitePawnAttackLeft(b);
+    }
+
+    private static long whiteEnPassantRight(Board b) {
+        String enPassantTarget = b.getEnPassantTarget();
+        if (enPassantTarget.equals("-") || !b.isWhitesTurn())
+            return 0L;
+        return getLong(enPassantTarget) & whitePawnAttackRight(b);
+    }
 
     private static ArrayList<Move> getWhiteNonPawnMoves(Board b) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -327,13 +392,14 @@ public class MoveGenerator {
             }
         }
         moves.addAll(getKingMoves(b, Long.numberOfTrailingZeros(b.getWhiteKingBitBoard())));
+        long attacks = blackPawnAttackLeft(b) | blackPawnAttackRight(b)
+                | getBlackMovement(b);
 
-        //TODO handle that you can not castle through check
-        if (b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6)) {
-            moves.add(new Move(4, 2, KING_CASTLE_FLAG));
+        if (b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6) && !isAttackedby(4, attacks)&& !isAttackedby(5, attacks)&& !isAttackedby(6, attacks)) {
+            moves.add(new Move(4, 6, KING_CASTLE_FLAG));
         }
-        if (b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3)) {
-            moves.add(new Move(4, 7, QUEEN_CASTLE_FLAG));
+        if (b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3)&&  !isAttackedby(2, attacks)&& !isAttackedby(3, attacks)&& !isAttackedby(4, attacks)) {
+            moves.add(new Move(4, 2, QUEEN_CASTLE_FLAG));
         }
 
         stopwatch.stop(); // optional
@@ -372,11 +438,12 @@ public class MoveGenerator {
         }
         moves.addAll(getKingMoves(b, Long.numberOfTrailingZeros(b.getBlackKingBitBoard())));
 
-        //TODO handle that you can not castle through check
-        if (b.canBlackKingSideCastle() && b.isSquareEmpty(61) && b.isSquareEmpty(62)) {
+        long attacks = whitePawnAttackLeft(b) | whitePawnAttackRight(b)
+                | getWhiteMovement(b);
+        if (b.canBlackKingSideCastle() && b.isSquareEmpty(61) && b.isSquareEmpty(62)&& !isAttackedby(60, attacks)&& !isAttackedby(61, attacks)&& !isAttackedby(62, attacks)) {
             moves.add(new Move(60, 62, KING_CASTLE_FLAG));
         }
-        if (b.canBlackQueenSideCastle() && b.isSquareEmpty(58) && b.isSquareEmpty(59) && b.isSquareEmpty(3)) {
+        if (b.canBlackQueenSideCastle() && b.isSquareEmpty(57) && b.isSquareEmpty(58) && b.isSquareEmpty(59)&& !isAttackedby(58, attacks)&& !isAttackedby(59, attacks)&& !isAttackedby(60, attacks)) {
             moves.add(new Move(60, 58, QUEEN_CASTLE_FLAG));
         }
 
@@ -687,6 +754,15 @@ public class MoveGenerator {
         x += x >> 16; // put count of each 32 bits into their lowest 8 bits
         x += x >> 32; // put count of each 64 bits into their lowest 8 bits
         return (int) (x & 0x7fL);
+    }
+
+    private static long getLong(String square) {
+        for (int i = 0; i < letterSquares.length; i++) {
+            if (square.equalsIgnoreCase(letterSquares[i])) {
+                return squares[i];
+            }
+        }
+        return 0L;
     }
 
     private static String toString(Long test) {

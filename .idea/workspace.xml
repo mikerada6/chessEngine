@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8c3f14c-4f2c-47df-8a81-8c365146b49a" name="Changes" comment="basic move working.  need to check for illegal moves.">
+    <list default="true" id="c8c3f14c-4f2c-47df-8a81-8c365146b49a" name="Changes" comment="setup perft testing">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/chessMoveExplorer.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Perft.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/Perft.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/log4j2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/MoveGeneratorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/MoveGeneratorTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/Perft.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/Perft.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,7 +94,7 @@
       <command value="mvn clean install -U" />
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.PerftTest">
+  <component name="RunManager" selected="JUnit.java in chessEngline">
     <configuration name="PerftTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="chessEngline" />
       <extension name="coverage">
@@ -127,7 +126,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PerftTest.testPerft1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PerftTest.testPerft006" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="chessEngline" />
       <extension name="coverage">
         <pattern>
@@ -137,13 +136,13 @@
       </extension>
       <option name="PACKAGE_NAME" value="org.rezatron.chess" />
       <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.PerftTest" />
-      <option name="METHOD_NAME" value="testPerft1" />
+      <option name="METHOD_NAME" value="testPerft006" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PerftTest.testPerft10" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PerftTest.testPerft013" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="chessEngline" />
       <extension name="coverage">
         <pattern>
@@ -153,35 +152,27 @@
       </extension>
       <option name="PACKAGE_NAME" value="org.rezatron.chess" />
       <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.PerftTest" />
-      <option name="METHOD_NAME" value="testPerft10" />
+      <option name="METHOD_NAME" value="testPerft013" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PerftTest.testPerft55" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="java in chessEngline" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="chessEngline" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.rezatron.chess.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="org.rezatron.chess" />
-      <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.PerftTest" />
-      <option name="METHOD_NAME" value="testPerft55" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/src/test/java" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.PerftTest" />
+        <item itemvalue="JUnit.java in chessEngline" />
+        <item itemvalue="JUnit.PerftTest.testPerft013" />
         <item itemvalue="JUnit.PerftTest.testDivide1" />
-        <item itemvalue="JUnit.PerftTest.testPerft1" />
-        <item itemvalue="JUnit.PerftTest.testPerft10" />
-        <item itemvalue="JUnit.PerftTest.testPerft55" />
+        <item itemvalue="JUnit.PerftTest" />
+        <item itemvalue="JUnit.PerftTest.testPerft006" />
       </list>
     </recent_temporary>
   </component>
@@ -236,7 +227,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672290109248</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="setup perft testing">
+      <created>1672362199213</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1672362199213</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -256,7 +254,8 @@
     <MESSAGE value="basic white movement working" />
     <MESSAGE value="update workspace.xml" />
     <MESSAGE value="basic move working.  need to check for illegal moves." />
-    <option name="LAST_COMMIT_MESSAGE" value="basic move working.  need to check for illegal moves." />
+    <MESSAGE value="setup perft testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="setup perft testing" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -277,9 +276,43 @@
           <option name="timeStamp" value="27" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/test/java/org/rezatron/chess/Perft.java</url>
-          <line>78</line>
-          <option name="timeStamp" value="41" />
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/Move.java</url>
+          <line>61</line>
+          <option name="timeStamp" value="42" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>300</line>
+          <option name="timeStamp" value="81" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>290</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>340</line>
+          <option name="timeStamp" value="83" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>348</line>
+          <option name="timeStamp" value="84" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>446</line>
+          <option name="timeStamp" value="86" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>43</line>
+          <properties class="org.rezatron.chess.MoveGenerator" method="getWhitePawnMoves">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="87" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -291,11 +324,11 @@
     <SUITE FILE_PATH="coverage/chessEngline$BoardTest_newBoardTest.ic" NAME="BoardTest.newBoardTest Coverage Results" MODIFIED="1672251633156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>org.rezatron.chess.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/chessEngline$java_in_chessEngline.ic" NAME="java in chessEngline Coverage Results" MODIFIED="1672329900245" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/chessEngline$java_in_chessEngline.ic" NAME="java in chessEngline Coverage Results" MODIFIED="1672377543160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
     <SUITE FILE_PATH="coverage/chessEngline$BoardTest_newFenStringTest.ic" NAME="BoardTest.newFenStringTest Coverage Results" MODIFIED="1672251990323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>org.rezatron.chess.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/chessEngline$PerftTest.ic" NAME="PerftTest Coverage Results" MODIFIED="1672361537464" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+    <SUITE FILE_PATH="coverage/chessEngline$PerftTest.ic" NAME="PerftTest Coverage Results" MODIFIED="1672376274663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>org.rezatron.chess.*</FILTER>
     </SUITE>
   </component>

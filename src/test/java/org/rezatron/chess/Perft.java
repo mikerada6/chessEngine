@@ -60,10 +60,9 @@ public class Perft {
 
 
     public static long perft(Board board, int depth) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
+
         ArrayList<Move> moveList = MoveGenerator.getMoves(board);
         if (depth == 1) {
-            log.info("Perft ({}): {} nodes, Time {}", depth, moveList.size(), stopwatch);
             return moveList.size();
         }
         long nodes = 0;
@@ -74,9 +73,7 @@ public class Perft {
                 board.undo();
             }
         }
-        stopwatch.stop(); // optional
-//        Perft (6): 71179139 nodes, Time 1.306 s, [71179139], OK
-        log.info("Perft ({}): {} nodes, Time {}", depth, nodes, stopwatch);
+
         return nodes;
     }
 }
