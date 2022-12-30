@@ -57,8 +57,8 @@ public class MoveGeneratorTest extends TestCase {
 
         Board b = new Board("r6r/1k6/8/8/8/8/1K6/R6R w - - 0 1");
         System.out.println(b);
-        ArrayList<Move> moves = MoveGenerator.getWhiteMoves(b);
-        assertEquals(26, moves.size());
+        ArrayList<Move> moves = MoveGenerator.getMoves(b);
+        assertEquals(31, moves.size());
 
         assertTrue(moves.contains(new Move(0,1,QUITE_MOVE_FLAG)));
         assertTrue(moves.contains(new Move(0,2,QUITE_MOVE_FLAG)));
@@ -87,6 +87,15 @@ public class MoveGeneratorTest extends TestCase {
         assertTrue(moves.contains(new Move(7,47,QUITE_MOVE_FLAG)));
         assertTrue(moves.contains(new Move(7,55,QUITE_MOVE_FLAG)));
         assertTrue(moves.contains(new Move(7,63,CAPTURE_FLAG)));
+
+        assertTrue(moves.contains(new Move(9,17,QUITE_MOVE_FLAG)));
+        assertTrue(moves.contains(new Move(9,18,QUITE_MOVE_FLAG)));
+        assertTrue(moves.contains(new Move(9,10,QUITE_MOVE_FLAG)));
+        assertTrue(moves.contains(new Move(9,2,QUITE_MOVE_FLAG)));
+        assertTrue(moves.contains(new Move(9,1,QUITE_MOVE_FLAG)));
+
+        assertFalse(moves.contains(new Move(9,16,QUITE_MOVE_FLAG)));
+        assertFalse(moves.contains(new Move(9,8,QUITE_MOVE_FLAG)));
 
     }
 

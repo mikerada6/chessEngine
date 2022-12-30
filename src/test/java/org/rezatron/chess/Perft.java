@@ -1,8 +1,14 @@
 package org.rezatron.chess;
 
+import com.google.common.base.Stopwatch;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 public class Perft {
+
+    private static final Logger log = LogManager.getLogger(Perft.class);
 
     private static long diveIn(Board board, int depth) {
         ArrayList<Move> moveList = MoveGenerator.getMoves(board);
@@ -54,9 +60,12 @@ public class Perft {
 
 
     public static long perft(Board board, int depth) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moveList = MoveGenerator.getMoves(board);
-        if (depth == 1)
+        if (depth == 1) {
+            log.info("Perft ({}): {} nodes, Time {}", depth, moveList.size(), stopwatch);
             return moveList.size();
+        }
         long nodes = 0;
         if (!moveList.isEmpty()) {
             for (Move move : moveList) {
@@ -65,6 +74,9 @@ public class Perft {
                 board.undo();
             }
         }
+        stopwatch.stop(); // optional
+//        Perft (6): 71179139 nodes, Time 1.306 s, [71179139], OK
+        log.info("Perft ({}): {} nodes, Time {}", depth, nodes, stopwatch);
         return nodes;
     }
 }

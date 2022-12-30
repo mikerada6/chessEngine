@@ -18,23 +18,25 @@ public class MoveGenerator {
     private static final Logger log = LogManager.getLogger(MoveGenerator.class);
 
     public static ArrayList<Move> getMoves(Board b) {
-        if(b.isWhitesTurn())
-            return getWhiteMoves( b);
+        ArrayList<Move> moves;
+        if (b.isWhitesTurn())
+            moves = getWhiteMoves(b);
         else
-            return getBlackMoves(b);
+            moves = getBlackMoves(b);
+        return legalizeMoves(b, moves);
     }
 
     public static ArrayList<Move> getWhiteMoves(Board b) {
         ArrayList<Move> moves = new ArrayList<>();
         moves.addAll(getWhitePawnMoves(b));
-        moves.addAll(getWhiteNonPawnMovement(b));
+        moves.addAll(getWhiteNonPawnMoves(b));
         return moves;
     }
 
     public static ArrayList<Move> getBlackMoves(Board b) {
         ArrayList<Move> moves = new ArrayList<>();
         moves.addAll(getBlackPawnMoves(b));
-        moves.addAll(getBlackNonPawnMovement(b));
+        moves.addAll(getBlackNonPawnMoves(b));
         return moves;
     }
 
@@ -50,8 +52,8 @@ public class MoveGenerator {
 
         long whitePawnPushOne = (wp << 8) & empty;
         long whitePawnPushTwo = (((((wp << 8) & empty) << 8) & rankMask[3])) & empty;
-        long whitePawnAttackLeft = ((wp << 7) & ~FILE_H) & them;
-        long whitePawnAttackRight = ((wp << 9) & ~FILE_A) & them;
+        long whitePawnAttackLeft = whitePawnAttackLeft( b);
+        long whitePawnAttackRight = whitePawnAttackRight(b);
 
         long moveOne = whitePawnPushOne & ~rankMask[7];
         long promoteMove = whitePawnPushOne & rankMask[7];
@@ -148,7 +150,7 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("white pawn movement took : {}", stopwatch);
+        log.debug("white pawn movement took : {}", stopwatch);
 
         return moves;
     }
@@ -159,13 +161,12 @@ public class MoveGenerator {
         ArrayList<Move> moves = new ArrayList<>();
 
         long bp = b.getBlackPawnBitBoard();
-        long them = b.getWhiteBitBoard();
         long empty = b.getEmptyBitBoard();
 
         long blackPawnPushOne = (bp >> 8) & empty;
         long blackPawnPushTwo = (((((bp >> 8) & empty) >> 8) & rankMask[4])) & empty;
-        long blackPawnAttackLeft = ((bp >> 7) & ~FILE_A) & them;
-        long blackPawnAttackRight = ((bp >> 9) & ~FILE_H) & them;
+        long blackPawnAttackLeft = blackPawnAttackLeft(b);
+        long blackPawnAttackRight = blackPawnAttackRight(b);
 
         long moveOne = blackPawnPushOne & ~rankMask[7];
         long promoteMove = blackPawnPushOne & rankMask[7];
@@ -262,118 +263,133 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("white pawn movement took : {}", stopwatch);
+        log.debug("white pawn movement took : {}", stopwatch);
 
         return moves;
     }
 
-    private static ArrayList<Move> getWhiteNonPawnMovement(Board b) {
+    private static long whitePawnAttackLeft(Board b) {
+        long wp = b.getWhitePawnBitBoard();
+        long them = b.getBlackBitBoard();
+
+        return ((wp << 7) & ~FILE_H) & them;
+    }
+
+    private static long whitePawnAttackRight(Board b) {
+        long wp = b.getWhitePawnBitBoard();
+        long them = b.getBlackBitBoard();
+
+        return ((wp << 9) & ~FILE_A) & them;
+    }
+
+    private static long blackPawnAttackLeft(Board b) {
+        long bp = b.getBlackPawnBitBoard();
+        long them = b.getWhiteBitBoard();
+
+        return ((bp >> 7) & ~FILE_A) & them;
+    }
+
+    private static long blackPawnAttackRight(Board b) {
+        long bp = b.getBlackPawnBitBoard();
+        long them = b.getWhiteBitBoard();
+
+        return ((bp >> 9) & ~FILE_H) & them;
+    }
+
+
+
+    private static ArrayList<Move> getWhiteNonPawnMoves(Board b) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moves = new ArrayList<>();
         for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard() | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long
                 .numberOfTrailingZeros(temp)) {
             switch (b.pieceAtSquare(Long.numberOfTrailingZeros(temp))) {
                 case WHITE_ROOK -> {
-                    moves.addAll(getRookMovement(b, (Long
+                    moves.addAll(getRookMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After ROOK: {}", moves);
                 }
                 case WHITE_KNIGHT -> {
-                    moves.addAll(getKnightMovement(b, (Long
+                    moves.addAll(getKnightMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After KNIGHT: {}", moves);
                 }
                 case WHITE_BISHOP -> {
-                    moves.addAll(getBishopMovement(b, (Long
+                    moves.addAll(getBishopMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After BISHOP: {}", moves);
                 }
                 case WHITE_QUEEN -> {
-                    moves.addAll(getQueenMovement(b, (Long
+                    moves.addAll(getQueenMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After QUEEN: {}", moves);
                 }
             }
         }
-        moves.addAll(getKingMovement(b, Long.numberOfTrailingZeros(b.getWhiteKingBitBoard())));
+        moves.addAll(getKingMoves(b, Long.numberOfTrailingZeros(b.getWhiteKingBitBoard())));
 
         //TODO handle that you can not castle through check
-        if(b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6))
-        {
-            moves.add(new Move(4,2,KING_CASTLE_FLAG));
+        if (b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6)) {
+            moves.add(new Move(4, 2, KING_CASTLE_FLAG));
         }
-        if(b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3))
-        {
-            moves.add(new Move(4,7,QUEEN_CASTLE_FLAG));
+        if (b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3)) {
+            moves.add(new Move(4, 7, QUEEN_CASTLE_FLAG));
         }
 
         stopwatch.stop(); // optional
 
-        log.trace("white non pawn movement took : {}", stopwatch);
+        log.debug("white non pawn movement took : {}", stopwatch);
         return moves;
     }
 
-    private static ArrayList<Move> getBlackNonPawnMovement(Board b) {
+    private static ArrayList<Move> getBlackNonPawnMoves(Board b) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moves = new ArrayList<>();
         for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard() | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long
                 .numberOfTrailingZeros(temp)) {
             switch (b.pieceAtSquare(Long.numberOfTrailingZeros(temp))) {
                 case BLACK_ROOK -> {
-                    moves.addAll(getRookMovement(b, (Long
+                    moves.addAll(getRookMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After ROOK: {}", moves);
                 }
                 case BLACK_KNIGHT -> {
-                    moves.addAll(getKnightMovement(b, (Long
+                    moves.addAll(getKnightMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After KNIGHT: {}", moves);
                 }
                 case BLACK_BISHOP -> {
-                    moves.addAll(getBishopMovement(b, (Long
+                    moves.addAll(getBishopMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After BISHOP: {}", moves);
                 }
                 case BLACK_QUEEN -> {
-                    moves.addAll(getQueenMovement(b, (Long
+                    moves.addAll(getQueenMoves(b, (Long
                             .numberOfTrailingZeros(temp))));
                     log.trace("After QUEEN: {}", moves);
                 }
             }
         }
-        moves.addAll(getKingMovement(b, Long.numberOfTrailingZeros(b.getBlackKingBitBoard())));
+        moves.addAll(getKingMoves(b, Long.numberOfTrailingZeros(b.getBlackKingBitBoard())));
 
         //TODO handle that you can not castle through check
-        if(b.canBlackKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6))
-        {
-            moves.add(new Move(4,2,KING_CASTLE_FLAG));
+        if (b.canBlackKingSideCastle() && b.isSquareEmpty(61) && b.isSquareEmpty(62)) {
+            moves.add(new Move(60, 62, KING_CASTLE_FLAG));
         }
-        if(b.canBlackQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3))
-        {
-            moves.add(new Move(4,7,QUEEN_CASTLE_FLAG));
+        if (b.canBlackQueenSideCastle() && b.isSquareEmpty(58) && b.isSquareEmpty(59) && b.isSquareEmpty(3)) {
+            moves.add(new Move(60, 58, QUEEN_CASTLE_FLAG));
         }
 
         stopwatch.stop(); // optional
 
-        log.trace("black non pawn movement took : {}", stopwatch);
+        log.debug("black non pawn movement took : {}", stopwatch);
         return moves;
     }
 
-    private static ArrayList<Move> getRookMovement(Board b, int square) {
+    private static ArrayList<Move> getRookMoves(Board b, int square) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moves = new ArrayList<>();
-        long binaryS = 1L << square;
-        long r = Long.reverse(binaryS);
-        long twoR = 2 * r;
-        long occupied = b.getOccupiedBitBoard();
-        long fMask = fileMask[square % 8];
-
-        long one = ((occupied & fMask) - (2 * binaryS))
-                ^ Long.reverse(Long.reverse(occupied & fMask) - (twoR));
-
-        long two = (occupied - 2 * binaryS)
-                ^ Long.reverse(Long.reverse(occupied) - twoR);
-        long movesBitBoard  = (one & fileMask[square % 8]) + (two & rankMask[square / 8]);
+        long movesBitBoard = getRookMovement(b, square);
 
         if ((((b.getWhiteRookBitBoard() >> square) & 1) == 1))
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
@@ -396,25 +412,29 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("rook movement took : {}", stopwatch);
+        log.debug("rook movement took : {}", stopwatch);
         return moves;
     }
 
-    private static ArrayList<Move> getKnightMovement(Board b, int square) {
+    private static long getRookMovement(Board b, int square) {
+        long binaryS = 1L << square;
+        long r = Long.reverse(binaryS);
+        long twoR = 2 * r;
+        long occupied = b.getOccupiedBitBoard();
+        long fMask = fileMask[square % 8];
+
+        long one = ((occupied & fMask) - (2 * binaryS))
+                ^ Long.reverse(Long.reverse(occupied & fMask) - (twoR));
+
+        long two = (occupied - 2 * binaryS)
+                ^ Long.reverse(Long.reverse(occupied) - twoR);
+        return (one & fileMask[square % 8]) + (two & rankMask[square / 8]);
+    }
+
+    private static ArrayList<Move> getKnightMoves(Board b, int square) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moves = new ArrayList<>();
-        long movesBitBoard;
-
-        if (square > 18) {
-            movesBitBoard = KNIGHT_SPAN << (square - 18);
-        } else {
-            movesBitBoard = KNIGHT_SPAN >> (18 - square);
-        }
-        if (square % 8 < 4) {
-            movesBitBoard &= ~FILE_GH;
-        } else {
-            movesBitBoard &= ~FILE_AB;
-        }
+        long movesBitBoard = getKnightMovement(b, square);
         if ((((b.getWhiteKnightBitBoard() >> square) & 1) == 1))
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
         else
@@ -437,24 +457,30 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("knight movement took : {}", stopwatch);
+        log.debug("knight movement took : {}", stopwatch);
         return moves;
     }
 
-    private static ArrayList<Move> getBishopMovement(Board b, int square) {
+    private static long getKnightMovement(Board b, int square) {
+        long movesBitBoard;
+
+        if (square > 18) {
+            movesBitBoard = KNIGHT_SPAN << (square - 18);
+        } else {
+            movesBitBoard = KNIGHT_SPAN >> (18 - square);
+        }
+        if (square % 8 < 4) {
+            movesBitBoard &= ~FILE_GH;
+        } else {
+            movesBitBoard &= ~FILE_AB;
+        }
+        return movesBitBoard;
+    }
+
+    private static ArrayList<Move> getBishopMoves(Board b, int square) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moves = new ArrayList<>();
-        long binaryS = 1L << square;
-        long r = Long.reverse(binaryS);
-        long twoR = 2 * r;
-        long occupied = b.getOccupiedBitBoard();
-        long dMask = diagonalMask[7 + square / 8 - square % 8];
-        long adMask = antiDiagonalMask[(square / 8) + (square % 8)];
-        long one = ((occupied & dMask) - (2 * binaryS))
-                ^ Long.reverse(Long.reverse(occupied & dMask) - (twoR));
-        long two = ((occupied & adMask) - (2 * binaryS))
-                ^ Long.reverse(Long.reverse(occupied & adMask) - (twoR));
-        long  movesBitBoard = (one & dMask) | (two & adMask);
+        long movesBitBoard = getBishopMovement(b, square);
         if ((((b.getWhiteBishopBitBoard() >> square) & 1) == 1))
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
         else
@@ -477,30 +503,31 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("bishop movement took : {}", stopwatch);
+        log.debug("bishop movement took : {}", stopwatch);
         return moves;
     }
 
-    private static ArrayList<Move> getQueenMovement(Board b, int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        ArrayList<Move> moves = new ArrayList<>();
+    private static long getBishopMovement(Board b, int square) {
         long binaryS = 1L << square;
         long r = Long.reverse(binaryS);
         long twoR = 2 * r;
         long occupied = b.getOccupiedBitBoard();
         long dMask = diagonalMask[7 + square / 8 - square % 8];
         long adMask = antiDiagonalMask[(square / 8) + (square % 8)];
-        long fMask = fileMask[square % 8];
         long one = ((occupied & dMask) - (2 * binaryS))
                 ^ Long.reverse(Long.reverse(occupied & dMask) - (twoR));
         long two = ((occupied & adMask) - (2 * binaryS))
                 ^ Long.reverse(Long.reverse(occupied & adMask) - (twoR));
-        long three = ((occupied & fMask) - (2 * binaryS))
-                ^ Long.reverse(Long.reverse(occupied & fMask) - (twoR));
-        long four = (occupied - 2 * binaryS)
-                ^ Long.reverse(Long.reverse(occupied) - twoR);
-        long movesBitBoard = ((four & rankMask[square / 8]) | (three & fMask))
-                | (one & dMask) | (two & adMask);
+        return (one & dMask) | (two & adMask);
+
+    }
+
+    private static ArrayList<Move> getQueenMoves(Board b, int square) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        ArrayList<Move> moves = new ArrayList<>();
+
+        long movesBitBoard = getQueenMovement(b, square);
+
         if ((((b.getWhiteQueenBitBoard() >> square) & 1) == 1))
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
         else
@@ -523,25 +550,18 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("queen movement took : {}", stopwatch);
+        log.debug("queen movement took : {}", stopwatch);
         return moves;
     }
 
-    private static ArrayList<Move> getKingMovement(Board b, int square) {
+    public static long getQueenMovement(Board b, int square) {
+        return getBishopMovement(b, square) | getRookMovement(b, square);
+    }
+
+    private static ArrayList<Move> getKingMoves(Board b, int square) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         ArrayList<Move> moves = new ArrayList<>();
-        long movesBitBoard;
-
-        if (square > 9) {
-            movesBitBoard = KING_SPAN << (square - 9);
-        } else {
-            movesBitBoard = KING_SPAN >> (9 - square);
-        }
-        if (square % 8 < 4) {
-            movesBitBoard &= ~FILE_GH;
-        } else {
-            movesBitBoard &= ~FILE_AB;
-        }
+        long movesBitBoard = getKingMovement(b, square);
         if ((((b.getWhiteBitBoard() >> square) & 1) == 1))
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
         else
@@ -564,12 +584,95 @@ public class MoveGenerator {
         }
         stopwatch.stop(); // optional
 
-        log.trace("king movement took : {}", stopwatch);
+        log.debug("king movement took : {}", stopwatch);
         return moves;
     }
 
+    private static long getKingMovement(Board b, int square)
+    {
+        long movesBitBoard;
+
+        if (square > 9) {
+            movesBitBoard = KING_SPAN << (square - 9);
+        } else {
+            movesBitBoard = KING_SPAN >> (9 - square);
+        }
+        if (square % 8 < 4) {
+            movesBitBoard &= ~FILE_GH;
+        } else {
+            movesBitBoard &= ~FILE_AB;
+        }
+        return movesBitBoard;
+    }
+
+    private static ArrayList<Move> legalizeMoves(Board b, ArrayList<Move> pseudoLegalMoves) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        ArrayList<Move> legalMoves = new ArrayList<>();
+        for(Move m: pseudoLegalMoves)
+        {
+            b.move(m);
+            if (b.isWhitesTurn() && isBlackChecked(b)) {
+                log.trace("{} is an illegal move.", m);
+            } else if (!b.isWhitesTurn() && isWhiteChecked(b)) {
+                log.trace("{} is an illegal move.", m);
+            } else {
+                legalMoves.add(m);
+            }
+            b.undo();
+        }
+        stopwatch.stop(); // optional
+
+        log.debug("legalizeMoves took : {}", stopwatch);
+        return legalMoves;
+    }
+
+    private static  boolean isWhiteChecked(Board b) {
+        long attacks = blackPawnAttackLeft(b) | blackPawnAttackRight(b)
+                | getBlackMovement(b);
+        return isAttackedby(b.getWhiteKingSquare(), attacks);
+    }
+
+    private static boolean isBlackChecked(Board b) {
+        long attacks = whitePawnAttackLeft(b) | whitePawnAttackRight(b)
+                | getWhiteMovement(b);
+        return isAttackedby(b.getBlackKingSquare(), attacks);
+    }
+
+    private static long getBlackMovement(Board b) {
+        Long ans = 0L;
+        long all = b.getOccupiedBitBoard();
+        for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard() | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long
+                .numberOfTrailingZeros(temp)) {
+            switch (b.pieceAtSquare(Long.numberOfTrailingZeros(temp))) {
+                case BLACK_ROOK -> ans |= getRookMovement(b, Long.numberOfTrailingZeros(temp));
+                case BLACK_KNIGHT -> ans |= getKnightMovement(b, Long.numberOfTrailingZeros(temp));
+                case BLACK_BISHOP -> ans |= getBishopMovement(b, Long.numberOfTrailingZeros(temp));
+                case BLACK_QUEEN -> ans |= getQueenMovement(b, Long.numberOfTrailingZeros(temp));
+            }
+        }
+        ans |= getKingMovement(b, Long.numberOfTrailingZeros(b.getBlackKingBitBoard()));
+        return ans;
+    }
+
+    private static long getWhiteMovement(Board b) {
+        Long ans = 0L;
+        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard() | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long
+                .numberOfTrailingZeros(temp)) {
+            switch (b.pieceAtSquare(Long.numberOfTrailingZeros(temp))) {
+                case WHITE_ROOK -> ans |= getRookMovement(b, Long.numberOfTrailingZeros(temp));
+                case WHITE_KNIGHT -> ans |= getKnightMovement(b, Long.numberOfTrailingZeros(temp));
+                case WHITE_BISHOP -> ans |= getBishopMovement(b, Long.numberOfTrailingZeros(temp));
+                case WHITE_QUEEN -> ans |= getQueenMovement(b, Long.numberOfTrailingZeros(temp));
+            }
+        }
+        ans |= getKingMovement(b, Long.numberOfTrailingZeros(b.getWhiteKingBitBoard()));
+        return ans;
+    }
 
 
+    private static boolean isAttackedby(int square, long attack) {
+        return (squares[square] & attack) != 0;
+    }
 
     private int countBits(long x) {
         long m1 = 0x5555555555555555L; // binary: 0101...
@@ -586,6 +689,27 @@ public class MoveGenerator {
         return (int) (x & 0x7fL);
     }
 
+    private static String toString(Long test) {
+        String rowString = "   +---+---+---+---+---+---+---+---+";
+        String printBoard = "\n\n" + rowString + "\n";
+        int row = 8;
+        for (int x = 0; x < order.length; x++) {
+            int i = order[x];
+            if (i % 8 == 0) {
+                printBoard += row + "  |";
+                row--;
+            }
 
+            if (((test >> i) & 1) == 1) {
+                printBoard += "(X)" + "|";
+            } else {
+                printBoard += " " + String.format("%02d", i) + "|";
+            }
+            if (i % 8 == 7)
+                printBoard += "\n" + rowString + "\n";
+        }
+        printBoard += "     a   b   c   d   e   f   g   h \n\n";
+        return printBoard;
+    }
 
 }

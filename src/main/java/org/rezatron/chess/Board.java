@@ -694,5 +694,14 @@ public class Board {
         return isWhitesTurn;
     }
 
+    public int getWhiteKingSquare() {
+        return Long.numberOfTrailingZeros(whiteKingBitBoard);
+    }
+
+    public int getBlackKingSquare() {
+        return Long.numberOfTrailingZeros(blackKingBitBoard);
+    }
+
+
 
 }
