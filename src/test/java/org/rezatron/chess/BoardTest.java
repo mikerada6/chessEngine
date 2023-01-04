@@ -2,7 +2,7 @@ package org.rezatron.chess;
 
 import junit.framework.TestCase;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.rezatron.chess.constants.ChessPiece.*;
 import static org.rezatron.chess.constants.MoveFlags.DOUBLE_PAWN_PUSH_FLAG;
@@ -289,7 +289,7 @@ public class BoardTest extends TestCase {
     public void testMove2() {
         Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         String beofre = b.toString();
-        ArrayList<Move> moves = MoveGenerator.getWhiteMoves(b);
+        List<Move> moves = MoveGenerator.getWhiteMoves( b);
         b.move(new Move(11, 20, QUITE_MOVE_FLAG));
         String newBoard = """
                    +---+---+---+---+---+---+---+---+

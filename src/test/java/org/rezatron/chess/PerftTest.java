@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static org.rezatron.chess.Perft.perft;
+import static org.rezatron.util.Perft.perft;
 
 public class PerftTest extends TestCase {
 
@@ -21,10 +21,17 @@ public class PerftTest extends TestCase {
 //        System.out.println(divide(b, 1));
 //    }
 
+//  public void testTest1(){
+//    Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//    log.info("fen: {}", b.getFEN());
+//    runPerftTest(119060324, b, 6);
+//  }
+
     public void runPerftTest(long expected, Board b, int depth) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         long nodes = perft(b, depth);
         stopwatch.stop(); // optional
+
         if (nodes == expected)
             log.info("Perft ({}): {} nodes, Time {}, [{}], OK", depth, nodes, stopwatch, expected);
         else
