@@ -5,15 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c8c3f14c-4f2c-47df-8a81-8c365146b49a" name="Changes" comment="speed up">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/BoardHistory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/constants/ChessConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/constants/ChessConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/BoardTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/BoardTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/MoveGeneratorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/MoveGeneratorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/Perft.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/util/Perft.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +70,6 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "SONARLINT_PRECOMMIT_ANALYSIS": "true",
     "WebServerToolWindowFactoryState": "false",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit3",
@@ -109,7 +102,7 @@
       <command value="mvn clean install -U" />
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.PerftTest">
+  <component name="RunManager" selected="JUnit.PerftTest.testPerft001">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
       <option name="appServicePlanName" />
@@ -214,8 +207,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.PerftTest" />
         <item itemvalue="JUnit.PerftTest.testPerft001" />
+        <item itemvalue="JUnit.PerftTest" />
         <item itemvalue="JUnit.All in chessEngline" />
         <item itemvalue="JUnit.MoveGeneratorTest.testLog2OfPowerOfTwo" />
         <item itemvalue="JUnit.PerftTest.testTest1" />
@@ -230,7 +223,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1671383268676</updated>
-      <workItem from="1672841268097" duration="14897000" />
+      <workItem from="1672841268097" duration="15888000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1671383376690</created>
@@ -281,7 +274,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672362199213</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="speed up">
+      <created>1672858186682</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1672858186682</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

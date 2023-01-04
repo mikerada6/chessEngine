@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.constants.ChessPiece;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.rezatron.chess.constants.ChessConstants.*;
@@ -14,8 +15,8 @@ public
 class Board {
 
   private static final Logger log = LogManager.getLogger( Board.class );
-  private final List<Long> history;
-  private final List<String> enPassantTargetHistory;
+  private final List<BoardHistory> history;
+//  private final List<String> enPassantTargetHistory;
   private final int[] moves;
   private String enPassantTarget;
   private long whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard, whiteKingBitBoard,
@@ -32,7 +33,7 @@ class Board {
     log.info( "new  board" );
     enPassantTarget = "-";
     history = new ArrayList<>();
-    enPassantTargetHistory = new ArrayList<>();
+//    enPassantTargetHistory = new LinkedList<>();
     moves = new int[6300];
     whitePawnBitBoard = 65280L;
     whiteRookBitBoard = 129L;
@@ -62,8 +63,8 @@ class Board {
     enPassantTarget = "-";
     // not chess960 compatible
 
-    history = new ArrayList<>();
-    enPassantTargetHistory = new ArrayList<>();
+    history = new LinkedList<>();
+//    enPassantTargetHistory = new ArrayList<>();
     moves = new int[6300];
     whitePawnBitBoard = 0;
     whiteRookBitBoard = 0;
@@ -196,61 +197,67 @@ class Board {
   void undo() {
     isWhitesTurn = !isWhitesTurn;
 
-    enPassantTargetHistory.remove( enPassantTargetHistory.size() - 1 );
-    enPassantTarget = enPassantTargetHistory.get( enPassantTargetHistory.size() - 1 );
+//    enPassantTargetHistory.remove( enPassantTargetHistory.size() - 1 );
+//    enPassantTarget = enPassantTargetHistory.get( enPassantTargetHistory.size() - 1 );
 
-    for (int i = 0; i < 17; i++) {
-      history.remove( history.size() - 1 );
-    }
+//    for (int i = 0; i < 17; i++) {
+//      history.remove( history.size() - 1 );
+//    }
 
-    fortyMoveCount = (history.get( history.size() - 1 ));
-    // history.remove(history.size()-1);
+    history.remove( history.size() - 1 );
+    BoardHistory historyTarget = history.get( history.size() - 1 );
 
-    blackQueenSideCastle = (history.get( history.size() - 2 )) != 0;
-    // history.remove(history.size()-1);
-    blackKingSideCastle = (history.get( history.size() - 3 )) != 0;
-    // history.remove(history.size()-1);
-    whiteQueenSideCastle = (history.get( history.size() - 4 )) != 0;
-    // history.remove(history.size()-1);
-    whiteKingSideCastle = (history.get( history.size() - 5 )) != 0;
+    fortyMoveCount = (historyTarget.getFortyMoveCount());
     // history.remove(history.size()-1);
 
-    blackKingBitBoard = (history.get( history.size() - 6 ));
+    blackQueenSideCastle = (historyTarget.isBlackQueenSideCastle());
+    // history.remove(history.size()-1);
+    blackKingSideCastle = (historyTarget.isBlackKingSideCastle());
+    // history.remove(history.size()-1);
+    whiteQueenSideCastle = (historyTarget.isWhiteQueenSideCastle());
+    // history.remove(history.size()-1);
+    whiteKingSideCastle = (historyTarget.isWhiteKingSideCastle());
     // history.remove(history.size()-1);
 
-    blackQueenBitBoard = (history.get( history.size() - 7 ));
+    blackKingBitBoard = historyTarget.getBlackKingBitBoard();
     // history.remove(history.size()-1);
 
-    blackBishopBitBoard = (history.get( history.size() - 8 ));
+    blackQueenBitBoard = historyTarget.getBlackQueenBitBoard();
     // history.remove(history.size()-1);
 
-    blackKnightBitBoard = (history.get( history.size() - 9 ));
+    blackBishopBitBoard = historyTarget.getBlackBishopBitBoard();
     // history.remove(history.size()-1);
 
-    blackRookBitBoard = (history.get( history.size() - 10 ));
+    blackKnightBitBoard = historyTarget.getBlackKnightBitBoard();
     // history.remove(history.size()-1);
 
-    blackPawnBitBoard = (history.get( history.size() - 11 ));
+    blackRookBitBoard = historyTarget.getBlackRookBitBoard();
     // history.remove(history.size()-1);
 
-    whiteKingBitBoard = (history.get( history.size() - 12 ));
+    blackPawnBitBoard = historyTarget.getBlackPawnBitBoard();
     // history.remove(history.size()-1);
 
-    whiteQueenBitBoard = (history.get( history.size() - 13 ));
+    whiteKingBitBoard = historyTarget.getWhiteKingBitBoard();
     // history.remove(history.size()-1);
 
-    whiteBishopBitBoard = (history.get( history.size() - 14 ));
+    whiteQueenBitBoard = historyTarget.getWhiteQueenBitBoard();
     // history.remove(history.size()-1);
 
-    whiteKnightBitBoard = (history.get( history.size() - 15 ));
+    whiteBishopBitBoard = historyTarget.getWhiteBishopBitBoard();
     // history.remove(history.size()-1);
 
-    whiteRookBitBoard = (history.get( history.size() - 16 ));
+    whiteKnightBitBoard = historyTarget.getWhiteKnightBitBoard();
     // history.remove(history.size()-1);
 
-    whitePawnBitBoard = (history.get( history.size() - 17 ));
+    whiteRookBitBoard = historyTarget.getWhiteRookBitBoard();
     // history.remove(history.size()-1);
+
+    whitePawnBitBoard = historyTarget.getWhitePawnBitBoard();
+    // history.remove(history.size()-1);
+
+    enPassantTarget = historyTarget.getEnPassantTarget();
     moveCount -= 1;
+
     // wp + "," + wr + "," + wn + "," + wb + "," + wq
     // + "," + wk + "," + bp + "," + br + "," + bn + "," + bb + ","
     // + bq + "," + bk + "," + wkc + "," + wqc + "," + bkc + "," + bqc
@@ -407,24 +414,13 @@ class Board {
      * + bk + "," + wkc + "," + wqc + "," + bkc + "," + bqc + "," +
      * enPassantTarget + "," + fortyMoveCount;
      */
-    history.add( whitePawnBitBoard );
-    history.add( whiteRookBitBoard );
-    history.add( whiteKnightBitBoard );
-    history.add( whiteBishopBitBoard );
-    history.add( whiteQueenBitBoard );
-    history.add( whiteKingBitBoard );
-    history.add( blackPawnBitBoard );
-    history.add( blackRookBitBoard );
-    history.add( blackKnightBitBoard );
-    history.add( blackBishopBitBoard );
-    history.add( blackQueenBitBoard );
-    history.add( blackKingBitBoard );
-    history.add( (whiteKingSideCastle ? 1L : 0L) );
-    history.add( (whiteQueenSideCastle ? 1L : 0L) );
-    history.add( (blackKingSideCastle ? 1L : 0L) );
-    history.add( (blackQueenSideCastle ? 1L : 0L) );
-    enPassantTargetHistory.add( enPassantTarget );
-    history.add( fortyMoveCount );
+    BoardHistory bh = new BoardHistory( whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard,
+                                        whiteQueenBitBoard, whiteKingBitBoard, blackPawnBitBoard, blackRookBitBoard,
+                                        blackKnightBitBoard, blackBishopBitBoard, blackQueenBitBoard, blackKingBitBoard,
+                                        whiteKingSideCastle, whiteQueenSideCastle, blackKingSideCastle,
+                                        blackQueenSideCastle, fortyMoveCount, enPassantTarget );
+    history.add(bh);
+//    enPassantTargetHistory.add( enPassantTarget );
 
   }
 
