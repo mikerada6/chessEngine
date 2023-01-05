@@ -304,6 +304,25 @@ class Board {
       switch (fromPiece) {
         case WHITE_PAWN -> {
           whitePawnBitBoard += (squares[to] - squares[from]);
+          if(flag == ROOK_PROMOTION_CAPTURE_FLAG.getFlag() || flag == ROOK_PROMOTION_FLAG.getFlag())
+          {
+            whitePawnBitBoard -= squares[to];
+            whiteRookBitBoard += squares[to];
+          } else if(flag == KNIGHT_PROMOTION_CAPTURE_FLAG.getFlag() || flag == KNIGHT_PROMOTION_FLAG.getFlag())
+          {
+            whitePawnBitBoard -= squares[to];
+            whiteKnightBitBoard += squares[to];
+          }
+          else if(flag == BISHOP_PROMOTION_CAPTURE_FLAG.getFlag() || flag == BISHOP_PROMOTION_FLAG.getFlag())
+          {
+            whitePawnBitBoard -= squares[to];
+            whiteBishopBitBoard += squares[to];
+          }
+          else if(flag == QUEEN_PROMOTION_CAPTURE_FLAG.getFlag() || flag == QUEEN_PROMOTION_FLAG.getFlag())
+          {
+            whitePawnBitBoard -= squares[to];
+            whiteQueenBitBoard += squares[to];
+          }
           if (to - from == 16) {
             enPassantTarget = letterSquares[from + 8];
           }
@@ -316,6 +335,25 @@ class Board {
         case WHITE_KING -> whiteKingBitBoard += (squares[to] - squares[from]);
         case BLACK_PAWN -> {
           blackPawnBitBoard += (squares[to] - squares[from]);
+          if(flag == ROOK_PROMOTION_CAPTURE_FLAG.getFlag() || flag == ROOK_PROMOTION_FLAG.getFlag())
+          {
+            blackPawnBitBoard -= squares[to];
+            blackRookBitBoard += squares[to];
+          } else if(flag == KNIGHT_PROMOTION_CAPTURE_FLAG.getFlag() || flag == KNIGHT_PROMOTION_FLAG.getFlag())
+          {
+            blackPawnBitBoard -= squares[to];
+            blackKnightBitBoard += squares[to];
+          }
+          else if(flag == BISHOP_PROMOTION_CAPTURE_FLAG.getFlag() || flag == BISHOP_PROMOTION_FLAG.getFlag())
+          {
+            blackPawnBitBoard -= squares[to];
+            blackBishopBitBoard += squares[to];
+          }
+          else if(flag == QUEEN_PROMOTION_CAPTURE_FLAG.getFlag() || flag == QUEEN_PROMOTION_FLAG.getFlag())
+          {
+            blackPawnBitBoard -= squares[to];
+            blackQueenBitBoard += squares[to];
+          }
           fortyMoveCount = 0;
           if (from - to == 16) {
             enPassantTarget = letterSquares[from - 8];

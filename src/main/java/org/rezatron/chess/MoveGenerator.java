@@ -285,12 +285,12 @@ class MoveGenerator {
     long blackPawnAttackRight = pawnAttackRight( b,
                                                  false ) & them;
 
-    long moveOne = blackPawnPushOne & ~rankMask[7];
-    long promoteMove = blackPawnPushOne & rankMask[7];
-    long whitePawnAttackLeftNormal = blackPawnAttackLeft & ~rankMask[7];
-    long whitePawnAttackRightNormal = blackPawnAttackRight & ~rankMask[7];
-    long whitePawnAttackLeftPromote = blackPawnAttackLeft & rankMask[7];
-    long whitePawnAttackRightPromote = blackPawnAttackRight & rankMask[7];
+    long moveOne = blackPawnPushOne & ~rankMask[0];
+    long promoteMove = blackPawnPushOne & rankMask[0];
+    long blackPawnAttackLeftNormal = blackPawnAttackLeft & ~rankMask[0];
+    long blackPawnAttackRightNormal = blackPawnAttackRight & ~rankMask[0];
+    long blackPawnAttackLeftPromote = blackPawnAttackLeft & rankMask[0];
+    long blackPawnAttackRightPromote = blackPawnAttackRight & rankMask[0];
 
 
     for (long temp = moveOne; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
@@ -317,7 +317,7 @@ class MoveGenerator {
       moves.add( move );
     }
 
-    for (long temp = whitePawnAttackLeftNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+    for (long temp = blackPawnAttackLeftNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
       int to = Long.numberOfTrailingZeros( temp );
       Move move = new Move( to + 7,
                             to,
@@ -328,7 +328,7 @@ class MoveGenerator {
                  move );
       moves.add( move );
     }
-    for (long temp = whitePawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+    for (long temp = blackPawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
       int to = Long.numberOfTrailingZeros( temp );
       Move move = new Move( to + 9,
                             to,
@@ -339,7 +339,6 @@ class MoveGenerator {
                  move );
       moves.add( move );
     }
-
     for (long temp = promoteMove; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
       int to = Long.numberOfTrailingZeros( temp );
       int from = to + 8;
@@ -377,9 +376,9 @@ class MoveGenerator {
       moves.add( moveQueen );
     }
 
-    for (long temp = whitePawnAttackLeftPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+    for (long temp = blackPawnAttackLeftPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
       int to = Long.numberOfTrailingZeros( temp );
-      int from = to - 7;
+      int from = to + 7;
       Move moveRook = new Move( from,
                                 to,
                                 MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG );
@@ -415,7 +414,7 @@ class MoveGenerator {
       moves.add( moveQueen );
     }
 
-    for (long temp = whitePawnAttackRightPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+    for (long temp = blackPawnAttackRightPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
       int to = Long.numberOfTrailingZeros( temp );
       int from = to + 9;
       Move moveRook = new Move( from,
@@ -578,8 +577,10 @@ class MoveGenerator {
     moves.addAll( getKingMoves( b,
                                 Long.numberOfTrailingZeros( b.getWhiteKingBitBoard() ) ) );
     long attacks = pawnAttackLeft( b,
-                                   true ) | pawnAttackRight( b,
-                                                             true ) | getBlackMovement( b );
+                                   false ) | pawnAttackRight( b,
+            false ) | getBlackMovement( b );
+
+
 
     if (b.canWhiteKingSideCastle() && b.isSquareEmpty( 5 ) && b.isSquareEmpty( 6 ) && !isAttackedBy( 4,
                                                                                                      attacks )
@@ -647,8 +648,8 @@ class MoveGenerator {
                                 Long.numberOfTrailingZeros( b.getBlackKingBitBoard() ) ) );
 
     long attacks = pawnAttackLeft( b,
-                                   false ) | pawnAttackRight( b,
-                                                              false ) | getWhiteMovement( b );
+                                   true ) | pawnAttackRight( b,
+            true ) | getWhiteMovement( b );
     if (b.canBlackKingSideCastle() && b.isSquareEmpty( 61 ) && b.isSquareEmpty( 62 ) && !isAttackedBy( 60,
                                                                                                        attacks )
         && !isAttackedBy( 61,
