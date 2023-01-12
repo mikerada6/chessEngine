@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.constants.MoveFlags;
 import org.rezatron.util.Perft;
 
+import java.util.List;
+
 import static org.rezatron.util.Perft.perft;
 
 public class PerftTest extends TestCase {
@@ -17,10 +19,10 @@ public class PerftTest extends TestCase {
 //        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //
 //        System.out.println(b);
-//        b.move(new  Move(8, 16,  MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(48, 32, MoveFlags.QUITE_MOVE_FLAG));
-////        b.move(new  Move(3, 39, MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(0, 8, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(12, 28,  MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(51, 35, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(5, 33, MoveFlags.QUITE_MOVE_FLAG));
+////        b.move(new  Move(0, 8, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(12, 4, MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG));
 ////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(5, 6, MoveFlags.QUITE_MOVE_FLAG));
@@ -28,9 +30,10 @@ public class PerftTest extends TestCase {
 //
 //        MoveGenerator mg = new MoveGenerator(b);
 //        System.out.println(b);
-//        System.out.println(mg.getMoves());
+//        List<Move> moves = mg.getMoves();
+//        System.out.println(moves.size() +"\n"+mg.getMoves());
 //
-//        System.out.println(Perft.divide(b, 3));
+//        System.out.println(Perft.divide(b, 2));
 //    }
 
 //  public void testTest1(){
