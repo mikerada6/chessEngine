@@ -14,1066 +14,1169 @@ import static org.rezatron.chess.constants.MoveFlags.*;
 public
 class MoveGenerator {
 
-    private static final Logger log = LogManager.getLogger(MoveGenerator.class);
+  private static final Logger log = LogManager.getLogger( MoveGenerator.class );
 
-    private final Board b;
+  private final Board b;
 
-    public MoveGenerator(Board b) {
-        this.b = b;
+  public
+  MoveGenerator(Board b) {
+    this.b = b;
+  }
+
+  public
+  MoveGenerator() {
+    this.b = new Board();
+  }
+
+  /**
+   * bitScanForward
+   *
+   * @param bb bitboard to scan
+   * @return index (0..63) of least significant one bit
+   * @author Charles E. Leiserson
+   * Harald Prokop
+   * Keith H. Randall
+   * "Using de Bruijn Sequences to Index a 1 in a Computer Word"
+   * @precondition bb != 0
+   */
+  static public
+  int bitScanForwardDeBruijn64(long bb) {
+    int idx = (int) (((bb & -bb) * deBruijn) >>> 58);
+    return magicTable[idx];
+  }
+
+  public
+  List<Move> getMoves() {
+    List<Move> moves;
+    if (b.isWhitesTurn()) moves = getWhiteMoves();
+    else moves = getBlackMoves();
+    return legalizeMoves( moves );
+  }
+
+  public
+  List<Move> getWhiteMoves() {
+    List<Move> moves = new LinkedList<>();
+    moves.addAll( getWhitePawnMoves() );
+    moves.addAll( getWhiteNonPawnMoves() );
+    return moves;
+  }
+
+  public
+  List<Move> getBlackMoves() {
+    List<Move> moves = new LinkedList<>();
+    moves.addAll( getBlackPawnMoves() );
+    moves.addAll( getBlackNonPawnMoves() );
+    return moves;
+  }
+
+  private
+  List<Move> getWhitePawnMoves() {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+
+    long wp = b.getWhitePawnBitBoard();
+    long them = b.getBlackBitBoard();
+    long empty = b.getEmptyBitBoard();
+
+    long whitePawnPushOne = (wp << 8) & empty;
+    long whitePawnPushTwo = (((((wp << 8) & empty) << 8) & rankMask[3])) & empty;
+    long whitePawnAttackLeft = pawnAttackLeft( true ) & them;
+    long whitePawnAttackRight = pawnAttackRight( true ) & them;
+
+    long moveOne = whitePawnPushOne & ~rankMask[7];
+    long promoteMove = whitePawnPushOne & rankMask[7];
+    long whitePawnAttackLeftNormal = whitePawnAttackLeft & ~rankMask[7];
+    long whitePawnAttackRightNormal = whitePawnAttackRight & ~rankMask[7];
+    long whitePawnAttackLeftPromote = whitePawnAttackLeft & rankMask[7];
+    long whitePawnAttackRightPromote = whitePawnAttackRight & rankMask[7];
+
+    long enPassantLeft = whiteEnPassantLeft();
+    long enPassantRight = whiteEnPassantRight();
+
+
+    for (long temp = moveOne; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to - 8,
+                            to,
+                            QUITE_MOVE_FLAG );
+      log.trace( "Making a white pawn push one from {} to {} - {}",
+                 to - 8,
+                 to,
+                 move );
+      moves.add( move );
     }
 
-    public MoveGenerator() {
-        this.b = new Board();
+    for (long temp = whitePawnPushTwo; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to - 16,
+                            to,
+                            MoveFlags.DOUBLE_PAWN_PUSH_FLAG );
+      log.trace( "Making a white pawn push two from {} to {} - {}",
+                 to - 16,
+                 to,
+                 move );
+      moves.add( move );
     }
 
-    /**
-     * bitScanForward
-     *
-     * @param bb bitboard to scan
-     * @return index (0..63) of least significant one bit
-     * @author Charles E. Leiserson
-     * Harald Prokop
-     * Keith H. Randall
-     * "Using de Bruijn Sequences to Index a 1 in a Computer Word"
-     * @precondition bb != 0
-     */
-    static public int bitScanForwardDeBruijn64(long bb) {
-        int idx = (int) (((bb & -bb) * deBruijn) >>> 58);
-        return magicTable[idx];
+    for (long temp = whitePawnAttackLeftNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to - 7,
+                            to,
+                            MoveFlags.CAPTURE_FLAG );
+      log.trace( "Making an attack left white pawn push from {} to {} - {}",
+                 to - 7,
+                 to,
+                 move );
+      moves.add( move );
+    }
+    for (long temp = whitePawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to - 9,
+                            to,
+                            MoveFlags.CAPTURE_FLAG );
+      log.trace( "Making an attack right  white pawn push from {} to {} - {}",
+                 to - 9,
+                 to,
+                 move );
+      moves.add( move );
     }
 
-    public List<Move> getMoves() {
-        List<Move> moves;
-        if (b.isWhitesTurn()) moves = getWhiteMoves();
-        else moves = getBlackMoves();
-        return legalizeMoves(moves);
+    for (long temp = promoteMove; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = to - 8;
+      Move moveRook = new Move( from,
+                                to,
+                                MoveFlags.ROOK_PROMOTION_FLAG );
+      Move moveKnight = new Move( from,
+                                  to,
+                                  MoveFlags.KNIGHT_PROMOTION_FLAG );
+      Move moveBishop = new Move( from,
+                                  to,
+                                  MoveFlags.BISHOP_PROMOTION_FLAG );
+      Move moveQueen = new Move( from,
+                                 to,
+                                 MoveFlags.QUEEN_PROMOTION_FLAG );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveRook );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveKnight );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveBishop );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveQueen );
+      moves.add( moveRook );
+      moves.add( moveKnight );
+      moves.add( moveBishop );
+      moves.add( moveQueen );
     }
 
-    public List<Move> getWhiteMoves() {
-        List<Move> moves = new LinkedList<>();
-        moves.addAll(getWhitePawnMoves());
-        moves.addAll(getWhiteNonPawnMoves());
-        return moves;
+    for (long temp = whitePawnAttackLeftPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = to - 7;
+      Move moveRook = new Move( from,
+                                to,
+                                MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG );
+      Move moveKnight = new Move( from,
+                                  to,
+                                  MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG );
+      Move moveBishop = new Move( from,
+                                  to,
+                                  MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG );
+      Move moveQueen = new Move( from,
+                                 to,
+                                 MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveRook );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveKnight );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveBishop );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveQueen );
+
+      moves.add( moveRook );
+      moves.add( moveKnight );
+      moves.add( moveBishop );
+      moves.add( moveQueen );
     }
 
-    public List<Move> getBlackMoves() {
-        List<Move> moves = new LinkedList<>();
-        moves.addAll(getBlackPawnMoves());
-        moves.addAll(getBlackNonPawnMoves());
-        return moves;
+    for (long temp = whitePawnAttackRightPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = to - 9;
+      Move moveRook = new Move( from,
+                                to,
+                                MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG );
+      Move moveKnight = new Move( from,
+                                  to,
+                                  MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG );
+      Move moveBishop = new Move( from,
+                                  to,
+                                  MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG );
+      Move moveQueen = new Move( from,
+                                 to,
+                                 MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveRook );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveKnight );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveBishop );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveQueen );
+      moves.add( moveRook );
+      moves.add( moveKnight );
+      moves.add( moveBishop );
+      moves.add( moveQueen );
     }
 
-    private List<Move> getWhitePawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    for (long temp = enPassantLeft; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = (to - 7);
 
-        long wp = b.getWhitePawnBitBoard();
-        long them = b.getBlackBitBoard();
-        long empty = b.getEmptyBitBoard();
-
-        long whitePawnPushOne = (wp << 8) & empty;
-        long whitePawnPushTwo = (((((wp << 8) & empty) << 8) & rankMask[3])) & empty;
-        long whitePawnAttackLeft = pawnAttackLeft(true) & them;
-        long whitePawnAttackRight = pawnAttackRight(true) & them;
-
-        long moveOne = whitePawnPushOne & ~rankMask[7];
-        long promoteMove = whitePawnPushOne & rankMask[7];
-        long whitePawnAttackLeftNormal = whitePawnAttackLeft & ~rankMask[7];
-        long whitePawnAttackRightNormal = whitePawnAttackRight & ~rankMask[7];
-        long whitePawnAttackLeftPromote = whitePawnAttackLeft & rankMask[7];
-        long whitePawnAttackRightPromote = whitePawnAttackRight & rankMask[7];
-
-        long enPassantLeft = whiteEnPassantLeft();
-        long enPassantRight = whiteEnPassantRight();
-
-
-        for (long temp = moveOne; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to - 8,
-                    to,
-                    QUITE_MOVE_FLAG);
-            log.trace("Making a white pawn push one from {} to {} - {}",
-                    to - 8,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = whitePawnPushTwo; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to - 16,
-                    to,
-                    MoveFlags.DOUBLE_PAWN_PUSH_FLAG);
-            log.trace("Making a white pawn push two from {} to {} - {}",
-                    to - 16,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = whitePawnAttackLeftNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to - 7,
-                    to,
-                    MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack left white pawn push from {} to {} - {}",
-                    to - 7,
-                    to,
-                    move);
-            moves.add(move);
-        }
-        for (long temp = whitePawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to - 9,
-                    to,
-                    MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack right  white pawn push from {} to {} - {}",
-                    to - 9,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = promoteMove; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = to - 8;
-            Move moveRook = new Move(from,
-                    to,
-                    MoveFlags.ROOK_PROMOTION_FLAG);
-            Move moveKnight = new Move(from,
-                    to,
-                    MoveFlags.KNIGHT_PROMOTION_FLAG);
-            Move moveBishop = new Move(from,
-                    to,
-                    MoveFlags.BISHOP_PROMOTION_FLAG);
-            Move moveQueen = new Move(from,
-                    to,
-                    MoveFlags.QUEEN_PROMOTION_FLAG);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
-            moves.add(moveRook);
-            moves.add(moveKnight);
-            moves.add(moveBishop);
-            moves.add(moveQueen);
-        }
-
-        for (long temp = whitePawnAttackLeftPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = to - 7;
-            Move moveRook = new Move(from,
-                    to,
-                    MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG);
-            Move moveKnight = new Move(from,
-                    to,
-                    MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG);
-            Move moveBishop = new Move(from,
-                    to,
-                    MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG);
-            Move moveQueen = new Move(from,
-                    to,
-                    MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
-
-            moves.add(moveRook);
-            moves.add(moveKnight);
-            moves.add(moveBishop);
-            moves.add(moveQueen);
-        }
-
-        for (long temp = whitePawnAttackRightPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = to - 9;
-            Move moveRook = new Move(from,
-                    to,
-                    MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG);
-            Move moveKnight = new Move(from,
-                    to,
-                    MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG);
-            Move moveBishop = new Move(from,
-                    to,
-                    MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG);
-            Move moveQueen = new Move(from,
-                    to,
-                    MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
-            moves.add(moveRook);
-            moves.add(moveKnight);
-            moves.add(moveBishop);
-            moves.add(moveQueen);
-        }
-
-        for (long temp = enPassantLeft; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = (to - 7);
-
-            Move move = new Move(from,
-                    to,
-                    MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant left from {} to {} - {}",
-                    from,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = enPassantRight; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = (to - 9);
-
-            Move move = new Move(from,
-                    to,
-                    MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant right from {} to {} - {}",
-                    from,
-                    to,
-                    move);
-            moves.add(move);
-        }
-        stopwatch.stop(); // optional
-
-        log.debug("white pawn movement took : {}",
-                stopwatch);
-
-        return moves;
+      Move move = new Move( from,
+                            to,
+                            MoveFlags.EP_CAPTURE_FLAG );
+      log.trace( "Making an enPassant left from {} to {} - {}",
+                 from,
+                 to,
+                 move );
+      moves.add( move );
     }
 
-    public List<Move> getBlackPawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
+    for (long temp = enPassantRight; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = (to - 9);
 
-        List<Move> moves = new LinkedList<>();
+      Move move = new Move( from,
+                            to,
+                            MoveFlags.EP_CAPTURE_FLAG );
+      log.trace( "Making an enPassant right from {} to {} - {}",
+                 from,
+                 to,
+                 move );
+      moves.add( move );
+    }
+    stopwatch.stop(); // optional
 
-        long bp = b.getBlackPawnBitBoard();
-        long empty = b.getEmptyBitBoard();
-        long them = b.getWhiteBitBoard();
+    log.debug( "white pawn movement took : {}",
+               stopwatch );
 
-        long enPassantLeft = blackEnPassantLeft();
-        long enPassantRight = blackEnPassantRight();
+    return moves;
+  }
 
-        long blackPawnPushOne = (bp >> 8) & empty;
-        long blackPawnPushTwo = (((((bp >> 8) & empty) >> 8) & rankMask[4])) & empty;
-        long blackPawnAttackLeft = pawnAttackLeft(false) & them;
-        long blackPawnAttackRight = pawnAttackRight(false) & them;
+  public
+  List<Move> getBlackPawnMoves() {
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
-        long moveOne = blackPawnPushOne & ~rankMask[0];
-        long promoteMove = blackPawnPushOne & rankMask[0];
-        long blackPawnAttackLeftNormal = blackPawnAttackLeft & ~rankMask[0];
-        long blackPawnAttackRightNormal = blackPawnAttackRight & ~rankMask[0];
-        long blackPawnAttackLeftPromote = blackPawnAttackLeft & rankMask[0];
-        long blackPawnAttackRightPromote = blackPawnAttackRight & rankMask[0];
+    List<Move> moves = new LinkedList<>();
+
+    long bp = b.getBlackPawnBitBoard();
+    long empty = b.getEmptyBitBoard();
+    long them = b.getWhiteBitBoard();
+
+    long enPassantLeft = blackEnPassantLeft();
+    long enPassantRight = blackEnPassantRight();
+
+    long blackPawnPushOne = (bp >> 8) & empty;
+    long blackPawnPushTwo = (((((bp >> 8) & empty) >> 8) & rankMask[4])) & empty;
+    long blackPawnAttackLeft = pawnAttackLeft( false ) & them;
+    long blackPawnAttackRight = pawnAttackRight( false ) & them;
+
+    long moveOne = blackPawnPushOne & ~rankMask[0];
+    long promoteMove = blackPawnPushOne & rankMask[0];
+    long blackPawnAttackLeftNormal = blackPawnAttackLeft & ~rankMask[0];
+    long blackPawnAttackRightNormal = blackPawnAttackRight & ~rankMask[0];
+    long blackPawnAttackLeftPromote = blackPawnAttackLeft & rankMask[0];
+    long blackPawnAttackRightPromote = blackPawnAttackRight & rankMask[0];
 
 
-        for (long temp = moveOne; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to + 8,
-                    to,
-                    QUITE_MOVE_FLAG);
-            log.trace("Making a white pawn push one from {} to {} - {}",
-                    to + 8,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = blackPawnPushTwo; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to + 16,
-                    to,
-                    MoveFlags.DOUBLE_PAWN_PUSH_FLAG);
-            log.trace("Making a white pawn push two from {} to {} - {}",
-                    to + 16,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = blackPawnAttackLeftNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to + 7,
-                    to,
-                    MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack left white pawn push from {} to {} - {}",
-                    to + 7,
-                    to,
-                    move);
-            moves.add(move);
-        }
-        for (long temp = blackPawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            Move move = new Move(to + 9,
-                    to,
-                    MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack right  white pawn push from {} to {} - {}",
-                    to + 9,
-                    to,
-                    move);
-            moves.add(move);
-        }
-        for (long temp = promoteMove; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = to + 8;
-            Move moveRook = new Move(from,
-                    to,
-                    MoveFlags.ROOK_PROMOTION_FLAG);
-            Move moveKnight = new Move(from,
-                    to,
-                    MoveFlags.KNIGHT_PROMOTION_FLAG);
-            Move moveBishop = new Move(from,
-                    to,
-                    MoveFlags.BISHOP_PROMOTION_FLAG);
-            Move moveQueen = new Move(from,
-                    to,
-                    MoveFlags.QUEEN_PROMOTION_FLAG);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
-            moves.add(moveRook);
-            moves.add(moveKnight);
-            moves.add(moveBishop);
-            moves.add(moveQueen);
-        }
-
-        for (long temp = blackPawnAttackLeftPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = to + 7;
-            Move moveRook = new Move(from,
-                    to,
-                    MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG);
-            Move moveKnight = new Move(from,
-                    to,
-                    MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG);
-            Move moveBishop = new Move(from,
-                    to,
-                    MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG);
-            Move moveQueen = new Move(from,
-                    to,
-                    MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
-
-            moves.add(moveRook);
-            moves.add(moveKnight);
-            moves.add(moveBishop);
-            moves.add(moveQueen);
-        }
-
-        for (long temp = blackPawnAttackRightPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = to + 9;
-            Move moveRook = new Move(from,
-                    to,
-                    MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG);
-            Move moveKnight = new Move(from,
-                    to,
-                    MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG);
-            Move moveBishop = new Move(from,
-                    to,
-                    MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG);
-            Move moveQueen = new Move(from,
-                    to,
-                    MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
-            moves.add(moveRook);
-            moves.add(moveKnight);
-            moves.add(moveBishop);
-            moves.add(moveQueen);
-        }
-
-        for (long temp = enPassantLeft; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = (to + 7);
-
-            Move move = new Move(from,
-                    to,
-                    MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant left from {} to {} - {}",
-                    from,
-                    to,
-                    move);
-            moves.add(move);
-        }
-
-        for (long temp = enPassantRight; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int to = Long.numberOfTrailingZeros(temp);
-            int from = (to + 9);
-
-            Move move = new Move(from,
-                    to,
-                    MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant right from {} to {} - {}",
-                    from,
-                    to,
-                    move);
-            moves.add(move);
-        }
-        stopwatch.stop(); // optional
-
-        log.debug("white pawn movement took : {}",
-                stopwatch);
-
-        return moves;
+    for (long temp = moveOne; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to + 8,
+                            to,
+                            QUITE_MOVE_FLAG );
+      log.trace( "Making a white pawn push one from {} to {} - {}",
+                 to + 8,
+                 to,
+                 move );
+      moves.add( move );
     }
 
-    private long pawnAttackRight(boolean isWhite) {
+    for (long temp = blackPawnPushTwo; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to + 16,
+                            to,
+                            MoveFlags.DOUBLE_PAWN_PUSH_FLAG );
+      log.trace( "Making a white pawn push two from {} to {} - {}",
+                 to + 16,
+                 to,
+                 move );
+      moves.add( move );
+    }
 
-        if (isWhite) {
-            long wp = b.getWhitePawnBitBoard();
-            return ((wp << 9) & ~FILE_A);
+    for (long temp = blackPawnAttackLeftNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to + 7,
+                            to,
+                            MoveFlags.CAPTURE_FLAG );
+      log.trace( "Making an attack left white pawn push from {} to {} - {}",
+                 to + 7,
+                 to,
+                 move );
+      moves.add( move );
+    }
+    for (long temp = blackPawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      Move move = new Move( to + 9,
+                            to,
+                            MoveFlags.CAPTURE_FLAG );
+      log.trace( "Making an attack right  white pawn push from {} to {} - {}",
+                 to + 9,
+                 to,
+                 move );
+      moves.add( move );
+    }
+    for (long temp = promoteMove; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = to + 8;
+      Move moveRook = new Move( from,
+                                to,
+                                MoveFlags.ROOK_PROMOTION_FLAG );
+      Move moveKnight = new Move( from,
+                                  to,
+                                  MoveFlags.KNIGHT_PROMOTION_FLAG );
+      Move moveBishop = new Move( from,
+                                  to,
+                                  MoveFlags.BISHOP_PROMOTION_FLAG );
+      Move moveQueen = new Move( from,
+                                 to,
+                                 MoveFlags.QUEEN_PROMOTION_FLAG );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveRook );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveKnight );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveBishop );
+      log.trace( "Making an promotion move  from {} to {} - {}",
+                 from,
+                 to,
+                 moveQueen );
+      moves.add( moveRook );
+      moves.add( moveKnight );
+      moves.add( moveBishop );
+      moves.add( moveQueen );
+    }
+
+    for (long temp = blackPawnAttackLeftPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = to + 7;
+      Move moveRook = new Move( from,
+                                to,
+                                MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG );
+      Move moveKnight = new Move( from,
+                                  to,
+                                  MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG );
+      Move moveBishop = new Move( from,
+                                  to,
+                                  MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG );
+      Move moveQueen = new Move( from,
+                                 to,
+                                 MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveRook );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveKnight );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveBishop );
+      log.trace( "Making an promotion attack left white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveQueen );
+
+      moves.add( moveRook );
+      moves.add( moveKnight );
+      moves.add( moveBishop );
+      moves.add( moveQueen );
+    }
+
+    for (long temp = blackPawnAttackRightPromote; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = to + 9;
+      Move moveRook = new Move( from,
+                                to,
+                                MoveFlags.ROOK_PROMOTION_CAPTURE_FLAG );
+      Move moveKnight = new Move( from,
+                                  to,
+                                  MoveFlags.KNIGHT_PROMOTION_CAPTURE_FLAG );
+      Move moveBishop = new Move( from,
+                                  to,
+                                  MoveFlags.BISHOP_PROMOTION_CAPTURE_FLAG );
+      Move moveQueen = new Move( from,
+                                 to,
+                                 MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveRook );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveKnight );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveBishop );
+      log.trace( "Making an promotion attack right white pawn push from {} to {} - {}",
+                 from,
+                 to,
+                 moveQueen );
+      moves.add( moveRook );
+      moves.add( moveKnight );
+      moves.add( moveBishop );
+      moves.add( moveQueen );
+    }
+
+    for (long temp = enPassantLeft; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = (to + 7);
+
+      Move move = new Move( from,
+                            to,
+                            MoveFlags.EP_CAPTURE_FLAG );
+      log.trace( "Making an enPassant left from {} to {} - {}",
+                 from,
+                 to,
+                 move );
+      moves.add( move );
+    }
+
+    for (long temp = enPassantRight; temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int to = Long.numberOfTrailingZeros( temp );
+      int from = (to + 9);
+
+      Move move = new Move( from,
+                            to,
+                            MoveFlags.EP_CAPTURE_FLAG );
+      log.trace( "Making an enPassant right from {} to {} - {}",
+                 from,
+                 to,
+                 move );
+      moves.add( move );
+    }
+    stopwatch.stop(); // optional
+
+    log.debug( "white pawn movement took : {}",
+               stopwatch );
+
+    return moves;
+  }
+
+  private
+  long pawnAttackRight(boolean isWhite) {
+
+    if (isWhite) {
+      long wp = b.getWhitePawnBitBoard();
+      return ((wp << 9) & ~FILE_A);
+    }
+    long bp = b.getBlackPawnBitBoard();
+    return ((bp >> 9) & ~FILE_H);
+  }
+
+  private
+  long pawnAttackLeft(boolean isWhite) {
+
+    if (isWhite) {
+      long wp = b.getWhitePawnBitBoard();
+      return ((wp << 7) & ~FILE_H);
+    }
+    long bp = b.getBlackPawnBitBoard();
+    return ((bp >> 7) & ~FILE_A);
+  }
+
+  private
+  long blackEnPassantLeft() {
+    String enPassantTarget = b.getEnPassantTarget();
+    if (enPassantTarget.equals( "-" ) || b.isWhitesTurn()) return 0L;
+    return letterSquaresHashMap.get( enPassantTarget ) & pawnAttackLeft( false );
+  }
+
+  private
+  long blackEnPassantRight() {
+    String enPassantTarget = b.getEnPassantTarget();
+    if (enPassantTarget.equals( "-" ) || b.isWhitesTurn()) return 0L;
+    return letterSquaresHashMap.get( enPassantTarget ) & pawnAttackRight( false );
+  }
+
+  private
+  long whiteEnPassantLeft() {
+    String enPassantTarget = b.getEnPassantTarget();
+    if (enPassantTarget.equals( "-" ) || !b.isWhitesTurn()) return 0L;
+    return letterSquaresHashMap.get( enPassantTarget ) & pawnAttackLeft( true );
+  }
+
+  private
+  long whiteEnPassantRight() {
+    String enPassantTarget = b.getEnPassantTarget();
+    if (enPassantTarget.equals( "-" ) || !b.isWhitesTurn()) return 0L;
+    return letterSquaresHashMap.get( enPassantTarget ) & pawnAttackRight( true );
+  }
+
+  private
+  List<Move> getWhiteNonPawnMoves() {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+    for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
+                      | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int square = Long.numberOfTrailingZeros( temp );
+      switch (b.pieceAtSquare( square )) {
+        case EMPTY -> {
+          log.trace( "no piece" );
         }
-        long bp = b.getBlackPawnBitBoard();
-        return ((bp >> 9) & ~FILE_H);
-    }
-
-    private long pawnAttackLeft(boolean isWhite) {
-
-        if (isWhite) {
-            long wp = b.getWhitePawnBitBoard();
-            return ((wp << 7) & ~FILE_H);
+        case WHITE_ROOK -> {
+          moves.addAll( getRookMoves( (square) ) );
+          log.trace( "After ROOK: {}",
+                     moves );
         }
-        long bp = b.getBlackPawnBitBoard();
-        return ((bp >> 7) & ~FILE_A);
-    }
-
-    private long blackEnPassantLeft() {
-        String enPassantTarget = b.getEnPassantTarget();
-        if (enPassantTarget.equals("-") || b.isWhitesTurn()) return 0L;
-        return letterSquaresHashMap.get(enPassantTarget) & pawnAttackLeft(false);
-    }
-
-    private long blackEnPassantRight() {
-        String enPassantTarget = b.getEnPassantTarget();
-        if (enPassantTarget.equals("-") || b.isWhitesTurn()) return 0L;
-        return letterSquaresHashMap.get(enPassantTarget) & pawnAttackRight(false);
-    }
-
-    private long whiteEnPassantLeft() {
-        String enPassantTarget = b.getEnPassantTarget();
-        if (enPassantTarget.equals("-") || !b.isWhitesTurn()) return 0L;
-        return letterSquaresHashMap.get(enPassantTarget) & pawnAttackLeft(true);
-    }
-
-    private long whiteEnPassantRight() {
-        String enPassantTarget = b.getEnPassantTarget();
-        if (enPassantTarget.equals("-") || !b.isWhitesTurn()) return 0L;
-        return letterSquaresHashMap.get(enPassantTarget) & pawnAttackRight(true);
-    }
-
-    private List<Move> getWhiteNonPawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
-                | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case EMPTY -> {
-                    log.trace("no piece");
-                }
-                case WHITE_ROOK -> {
-                    moves.addAll(getRookMoves((square)));
-                    log.trace("After ROOK: {}",
-                            moves);
-                }
-                case WHITE_KNIGHT -> {
-                    moves.addAll(getKnightMoves((square)));
-                    log.trace("After KNIGHT: {}",
-                            moves);
-                }
-                case WHITE_BISHOP -> {
-                    moves.addAll(getBishopMoves((square)));
-                    log.trace("After BISHOP: {}",
-                            moves);
-                }
-                case WHITE_QUEEN -> {
-                    moves.addAll(getQueenMoves((square)));
-                    log.trace("After QUEEN: {}",
-                            moves);
-                }
-            }
+        case WHITE_KNIGHT -> {
+          moves.addAll( getKnightMoves( (square) ) );
+          log.trace( "After KNIGHT: {}",
+                     moves );
         }
-        moves.addAll(getKingMoves(Long.numberOfTrailingZeros(b.getWhiteKingBitBoard())));
-        long attacks = pawnAttackLeft(false) | pawnAttackRight(false) | getBlackMovement();
-
-
-        if (b.canWhiteKingSideCastle() && b.isSquareEmpty(5) && b.isSquareEmpty(6) && !isAttackedBy(112L, attacks)) {
-            moves.add(new Move(4,
-                    6,
-                    KING_CASTLE_FLAG));
+        case WHITE_BISHOP -> {
+          moves.addAll( getBishopMoves( (square) ) );
+          log.trace( "After BISHOP: {}",
+                     moves );
         }
-
-        if (b.canWhiteQueenSideCastle() && b.isSquareEmpty(1) && b.isSquareEmpty(2) && b.isSquareEmpty(3)
-                && !isAttackedBy(28L, attacks)) {
-            moves.add(new Move(4,
-                    2,
-                    QUEEN_CASTLE_FLAG));
+        case WHITE_QUEEN -> {
+          moves.addAll( getQueenMoves( (square) ) );
+          log.trace( "After QUEEN: {}",
+                     moves );
         }
+      }
+    }
+    moves.addAll( getKingMoves( Long.numberOfTrailingZeros( b.getWhiteKingBitBoard() ) ) );
+    long attacks = pawnAttackLeft( false ) | pawnAttackRight( false ) | getBlackMovement();
 
-        stopwatch.stop(); // optional
 
-        log.debug("white non pawn movement took : {}",
-                stopwatch);
-        return moves;
+    if (b.canWhiteKingSideCastle() && b.isSquareEmpty( 5 ) && b.isSquareEmpty( 6 ) && !isAttackedBy( 112L,
+                                                                                                     attacks ))
+    {
+      moves.add( new Move( 4,
+                           6,
+                           KING_CASTLE_FLAG ) );
     }
 
-    private List<Move> getBlackNonPawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-        for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
-                | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case EMPTY -> {
-                    log.trace("no piece");
-                }
-                case BLACK_ROOK -> {
-                    moves.addAll(getRookMoves((square)));
-                    log.trace("After ROOK: {}",
-                            moves);
-                }
-                case BLACK_KNIGHT -> {
-                    moves.addAll(getKnightMoves((square)));
-                    log.trace("After KNIGHT: {}",
-                            moves);
-                }
-                case BLACK_BISHOP -> {
-                    moves.addAll(getBishopMoves((square)));
-                    log.trace("After BISHOP: {}",
-                            moves);
-                }
-                case BLACK_QUEEN -> {
-                    moves.addAll(getQueenMoves((square)));
-                    log.trace("After QUEEN: {}",
-                            moves);
-                }
-            }
-        }
-        moves.addAll(getKingMoves(Long.numberOfTrailingZeros(b.getBlackKingBitBoard())));
-
-        long attacks = pawnAttackLeft(true) | pawnAttackRight(true) | getWhiteMovement();
-
-        if (b.canBlackKingSideCastle() && b.isSquareEmpty(61) && b.isSquareEmpty(62)
-                && !isAttackedBy(8070450532247928832L,
-                attacks)) {
-            moves.add(new Move(60,
-                    62,
-                    KING_CASTLE_FLAG));
-        }
-
-        if (b.canBlackQueenSideCastle() && b.isSquareEmpty(57) && b.isSquareEmpty(58) && b.isSquareEmpty(59)
-                && !isAttackedBy(2017612633061982208L,
-                attacks)) {
-            moves.add(new Move(60,
-                    58,
-                    QUEEN_CASTLE_FLAG));
-        }
-
-        stopwatch.stop(); // optional
-
-        log.debug("black non pawn movement took : {}",
-                stopwatch);
-        return moves;
+    if (b.canWhiteQueenSideCastle() && b.isSquareEmpty( 1 ) && b.isSquareEmpty( 2 ) && b.isSquareEmpty( 3 )
+        && !isAttackedBy( 28L,
+                          attacks ))
+    {
+      moves.add( new Move( 4,
+                           2,
+                           QUEEN_CASTLE_FLAG ) );
     }
 
-    private List<Move> getRookMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-        long movesBitBoard = getRookMovement(square);
+    stopwatch.stop(); // optional
 
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
-            Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a rook movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+    log.debug( "white non pawn movement took : {}",
+               stopwatch );
+    return moves;
+  }
 
-            moves.add(move);
+  private
+  List<Move> getBlackNonPawnMoves() {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+    for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
+                      | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int square = Long.numberOfTrailingZeros( temp );
+      switch (b.pieceAtSquare( square )) {
+        case EMPTY -> {
+          log.trace( "no piece" );
         }
-        stopwatch.stop(); // optional
-
-        log.debug("rook movement took : {}",
-                stopwatch);
-        return moves;
-    }
-
-    private long getRookMovement(int square) {
-
-        long occupied = b.getOccupiedBitBoard();
-        return getRookMovement(occupied, square);
-    }
-
-    private long getRookMovement(long occupied, int square) {
-        long binaryS = 1L << square;
-        long r = Long.reverse(binaryS);
-        long twoR = 2 * r;
-        long fMask = fileMask[square % 8];
-
-        long one = ((occupied & fMask) - (2 * binaryS)) ^ Long.reverse(Long.reverse(occupied & fMask) - (twoR));
-
-        long two = (occupied - 2 * binaryS) ^ Long.reverse(Long.reverse(occupied) - twoR);
-        return (one & fileMask[square % 8]) + (two & rankMask[square / 8]);
-    }
-
-    private List<Move> getKnightMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-        long movesBitBoard = getKnightMovement(square);
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
-
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
-            Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a knight movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
-
-            moves.add(move);
+        case BLACK_ROOK -> {
+          moves.addAll( getRookMoves( (square) ) );
+          log.trace( "After ROOK: {}",
+                     moves );
         }
-        stopwatch.stop(); // optional
-
-        log.debug("knight movement took : {}",
-                stopwatch);
-        return moves;
-    }
-
-    private long getKnightMovement(int square) {
-        long movesBitBoard;
-
-        if (square > 18) {
-            movesBitBoard = KNIGHT_SPAN << (square - 18);
-        } else {
-            movesBitBoard = KNIGHT_SPAN >> (18 - square);
+        case BLACK_KNIGHT -> {
+          moves.addAll( getKnightMoves( (square) ) );
+          log.trace( "After KNIGHT: {}",
+                     moves );
         }
-        if (square % 8 < 4) {
-            movesBitBoard &= ~FILE_GH;
-        } else {
-            movesBitBoard &= ~FILE_AB;
+        case BLACK_BISHOP -> {
+          moves.addAll( getBishopMoves( (square) ) );
+          log.trace( "After BISHOP: {}",
+                     moves );
         }
-        return movesBitBoard;
-    }
-
-    private List<Move> getBishopMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-        long movesBitBoard = getBishopMovement(square);
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
-
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
-            Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
-
-            moves.add(move);
+        case BLACK_QUEEN -> {
+          moves.addAll( getQueenMoves( (square) ) );
+          log.trace( "After QUEEN: {}",
+                     moves );
         }
-        stopwatch.stop(); // optional
+      }
+    }
+    moves.addAll( getKingMoves( Long.numberOfTrailingZeros( b.getBlackKingBitBoard() ) ) );
 
-        log.debug("bishop movement took : {}",
-                stopwatch);
-        return moves;
+    long attacks = pawnAttackLeft( true ) | pawnAttackRight( true ) | getWhiteMovement();
+
+    if (b.canBlackKingSideCastle() && b.isSquareEmpty( 61 ) && b.isSquareEmpty( 62 )
+        && !isAttackedBy( 8070450532247928832L,
+                          attacks ))
+    {
+      moves.add( new Move( 60,
+                           62,
+                           KING_CASTLE_FLAG ) );
     }
 
-    private long getBishopMovement(int square) {
-
-        long occupied = b.getOccupiedBitBoard();
-        return getBishopMovement(occupied, square);
-
+    if (b.canBlackQueenSideCastle() && b.isSquareEmpty( 57 ) && b.isSquareEmpty( 58 ) && b.isSquareEmpty( 59 )
+        && !isAttackedBy( 2017612633061982208L,
+                          attacks ))
+    {
+      moves.add( new Move( 60,
+                           58,
+                           QUEEN_CASTLE_FLAG ) );
     }
 
-    private long getBishopMovement(long occupied, int square) {
-        long binaryS = 1L << square;
-        long r = Long.reverse(binaryS);
-        long twoR = 2 * r;
-        long dMask = diagonalMask[7 + square / 8 - square % 8];
-        long adMask = antiDiagonalMask[(square / 8) + (square % 8)];
-        long one = ((occupied & dMask) - (2 * binaryS)) ^ Long.reverse(Long.reverse(occupied & dMask) - (twoR));
-        long two = ((occupied & adMask) - (2 * binaryS)) ^ Long.reverse(Long.reverse(occupied & adMask) - (twoR));
-        return (one & dMask) | (two & adMask);
+    stopwatch.stop(); // optional
+
+    log.debug( "black non pawn movement took : {}",
+               stopwatch );
+    return moves;
+  }
+
+  private
+  List<Move> getRookMoves(int square) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+    long movesBitBoard = getRookMovement( square );
+
+    if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
+    else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+    for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros( movesBitBoard )) {
+      int i = Long.numberOfTrailingZeros( movesBitBoard );
+      Move move;
+      if (b.isSquareEmpty( i )) {
+        move = new Move( square,
+                         i,
+                         QUITE_MOVE_FLAG );
+      } else {
+        move = new Move( square,
+                         i,
+                         CAPTURE_FLAG );
+      }
+      log.trace( "adding a rook movement from {} to {} - {}",
+                 square,
+                 i,
+                 move );
+
+      moves.add( move );
     }
+    stopwatch.stop(); // optional
 
-    private List<Move> getQueenMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    log.debug( "rook movement took : {}",
+               stopwatch );
+    return moves;
+  }
 
-        long movesBitBoard = getQueenMovement(square);
+  private
+  long getRookMovement(int square) {
 
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+    long occupied = b.getOccupiedBitBoard();
+    return getRookMovement( occupied,
+                            square );
+  }
 
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
-            Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a queen movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+  private
+  long getRookMovement(long occupied, int square) {
+    long binaryS = 1L << square;
+    long r = Long.reverse( binaryS );
+    long twoR = 2 * r;
+    long fMask = fileMask[square % 8];
 
-            moves.add(move);
-        }
-        stopwatch.stop(); // optional
+    long one = ((occupied & fMask) - (2 * binaryS)) ^ Long.reverse( Long.reverse( occupied & fMask ) - (twoR) );
 
-        log.debug("queen movement took : {}",
-                stopwatch);
-        return moves;
+    long two = (occupied - 2 * binaryS) ^ Long.reverse( Long.reverse( occupied ) - twoR );
+    return (one & fileMask[square % 8]) + (two & rankMask[square / 8]);
+  }
+
+  private
+  List<Move> getKnightMoves(int square) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+    long movesBitBoard = getKnightMovement( square );
+    if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
+    else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+
+    for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros( movesBitBoard )) {
+      int i = Long.numberOfTrailingZeros( movesBitBoard );
+      Move move;
+      if (b.isSquareEmpty( i )) {
+        move = new Move( square,
+                         i,
+                         QUITE_MOVE_FLAG );
+      } else {
+        move = new Move( square,
+                         i,
+                         CAPTURE_FLAG );
+      }
+      log.trace( "adding a knight movement from {} to {} - {}",
+                 square,
+                 i,
+                 move );
+
+      moves.add( move );
     }
+    stopwatch.stop(); // optional
 
-    public long getQueenMovement(int square) {
-        return getBishopMovement(square) | getRookMovement(square);
+    log.debug( "knight movement took : {}",
+               stopwatch );
+    return moves;
+  }
+
+  private
+  long getKnightMovement(int square) {
+    long movesBitBoard;
+
+    if (square > 18) {
+      movesBitBoard = KNIGHT_SPAN << (square - 18);
+    } else {
+      movesBitBoard = KNIGHT_SPAN >> (18 - square);
     }
-
-    private List<Move> getKingMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-        long movesBitBoard = getKingMovement(square);
-        if ((((b.getWhiteBitBoard() >> square) & 1) == 1))
-            movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
-
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
-            Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a king movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
-
-            moves.add(move);
-        }
-        stopwatch.stop(); // optional
-
-        log.debug("king movement took : {}",
-                stopwatch);
-        return moves;
+    if (square % 8 < 4) {
+      movesBitBoard &= ~FILE_GH;
+    } else {
+      movesBitBoard &= ~FILE_AB;
     }
+    return movesBitBoard;
+  }
 
-    private long getKingMovement(int square) {
-        long movesBitBoard;
+  private
+  List<Move> getBishopMoves(int square) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+    long movesBitBoard = getBishopMovement( square );
+    if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
+    else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
 
-        if (square > 9) {
-            movesBitBoard = KING_SPAN << (square - 9);
-        } else {
-            movesBitBoard = KING_SPAN >> (9 - square);
-        }
-        if (square % 8 < 4) {
-            movesBitBoard &= ~FILE_GH;
-        } else {
-            movesBitBoard &= ~FILE_AB;
-        }
-        return movesBitBoard;
+    for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros( movesBitBoard )) {
+      int i = Long.numberOfTrailingZeros( movesBitBoard );
+      Move move;
+      if (b.isSquareEmpty( i )) {
+        move = new Move( square,
+                         i,
+                         QUITE_MOVE_FLAG );
+      } else {
+        move = new Move( square,
+                         i,
+                         CAPTURE_FLAG );
+      }
+      log.trace( "adding a bishop movement from {} to {} - {}",
+                 square,
+                 i,
+                 move );
+
+      moves.add( move );
     }
+    stopwatch.stop(); // optional
 
-    private List<Move> legalizeMoves(List<Move> pseudoLegalMoves) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        long all;
-        long me;
-        int king;
-        boolean isChecked;
-        if (b.isWhitesTurn()) {
-            all = b.getOccupiedBitBoard();
-            me = b.getWhiteBitBoard();
-            king = b.getWhiteKingSquare();
-            isChecked = isWhiteChecked();
-        } else {
-            all = b.getOccupiedBitBoard();
-            me = b.getBlackBitBoard();
-            king = b.getBlackKingSquare();
-            isChecked = isBlackChecked();
-        }
+    log.debug( "bishop movement took : {}",
+               stopwatch );
+    return moves;
+  }
+
+  private
+  long getBishopMovement(int square) {
+
+    long occupied = b.getOccupiedBitBoard();
+    return getBishopMovement( occupied,
+                              square );
+
+  }
+
+  private
+  long getBishopMovement(long occupied, int square) {
+    long binaryS = 1L << square;
+    long r = Long.reverse( binaryS );
+    long twoR = 2 * r;
+    long dMask = diagonalMask[7 + square / 8 - square % 8];
+    long adMask = antiDiagonalMask[(square / 8) + (square % 8)];
+    long one = ((occupied & dMask) - (2 * binaryS)) ^ Long.reverse( Long.reverse( occupied & dMask ) - (twoR) );
+    long two = ((occupied & adMask) - (2 * binaryS)) ^ Long.reverse( Long.reverse( occupied & adMask ) - (twoR) );
+    return (one & dMask) | (two & adMask);
+  }
+
+  private
+  List<Move> getQueenMoves(int square) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+
+    long movesBitBoard = getQueenMovement( square );
+
+    if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
+    else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+
+    for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros( movesBitBoard )) {
+      int i = Long.numberOfTrailingZeros( movesBitBoard );
+      Move move;
+      if (b.isSquareEmpty( i )) {
+        move = new Move( square,
+                         i,
+                         QUITE_MOVE_FLAG );
+      } else {
+        move = new Move( square,
+                         i,
+                         CAPTURE_FLAG );
+      }
+      log.trace( "adding a queen movement from {} to {} - {}",
+                 square,
+                 i,
+                 move );
+
+      moves.add( move );
+    }
+    stopwatch.stop(); // optional
+
+    log.debug( "queen movement took : {}",
+               stopwatch );
+    return moves;
+  }
+
+  public
+  long getQueenMovement(int square) {
+    return getBishopMovement( square ) | getRookMovement( square );
+  }
+
+  private
+  List<Move> getKingMoves(int square) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Move> moves = new LinkedList<>();
+    long movesBitBoard = getKingMovement( square );
+    if ((((b.getWhiteBitBoard() >> square) & 1) == 1)) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
+    else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+
+    for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros( movesBitBoard )) {
+      int i = Long.numberOfTrailingZeros( movesBitBoard );
+      Move move;
+      if (b.isSquareEmpty( i )) {
+        move = new Move( square,
+                         i,
+                         QUITE_MOVE_FLAG );
+      } else {
+        move = new Move( square,
+                         i,
+                         CAPTURE_FLAG );
+      }
+      log.trace( "adding a king movement from {} to {} - {}",
+                 square,
+                 i,
+                 move );
+
+      moves.add( move );
+    }
+    stopwatch.stop(); // optional
+
+    log.debug( "king movement took : {}",
+               stopwatch );
+    return moves;
+  }
+
+  private
+  long getKingMovement(int square) {
+    long movesBitBoard;
+
+    if (square > 9) {
+      movesBitBoard = KING_SPAN << (square - 9);
+    } else {
+      movesBitBoard = KING_SPAN >> (9 - square);
+    }
+    if (square % 8 < 4) {
+      movesBitBoard &= ~FILE_GH;
+    } else {
+      movesBitBoard &= ~FILE_AB;
+    }
+    return movesBitBoard;
+  }
+
+  private
+  List<Move> legalizeMoves(List<Move> pseudoLegalMoves) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    long all;
+    long me;
+    int king;
+    boolean isChecked;
+    if (b.isWhitesTurn()) {
+      all = b.getOccupiedBitBoard();
+      me = b.getWhiteBitBoard();
+      king = b.getWhiteKingSquare();
+      isChecked = isWhiteChecked();
+    } else {
+      all = b.getOccupiedBitBoard();
+      me = b.getBlackBitBoard();
+      king = b.getBlackKingSquare();
+      isChecked = isBlackChecked();
+    }
 //    long rookXRayMoves = xrayRookAttacks(all, me, king);
 //    long bishopXRayMoves = xrayBishopAttacks(all, me, king);
 //    long xRayMoves = rookXRayMoves|bishopXRayMoves;
 
-        long rookXRayMoves = getRookMovement(king);
-        long bishopXRayMoves = getBishopMovement(king);
-        long xRayMoves = rookXRayMoves | bishopXRayMoves;
+    long rookXRayMoves = getRookMovement( king );
+    long bishopXRayMoves = getBishopMovement( king );
+    long xRayMoves = rookXRayMoves | bishopXRayMoves;
 
 
-        List<Move> legalMoves = new LinkedList<>();
-        for (Move m : pseudoLegalMoves) {
-            long moveBitBoard = 1L << m.getFrom();
+    List<Move> legalMoves = new LinkedList<>();
+    for (Move m : pseudoLegalMoves) {
+      long moveBitBoard = 1L << m.getFrom();
 
-            if ((moveBitBoard & xRayMoves) != 0) {
-                b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else {
-                    legalMoves.add(m);
-                }
-                b.undo();
-            } else if (m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
-                b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else {
-                    legalMoves.add(m);
-                }
-                b.undo();
-            } else if (m.getFrom() == king) {
-                b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else {
-                    legalMoves.add(m);
-                }
-                b.undo();
-            } else if (isChecked) {
-                b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else {
-                    legalMoves.add(m);
-                }
-                b.undo();
-            } else {
-                log.trace("Move {} is not checked on board {}", m, b);
-                legalMoves.add(m);
-            }
+      if ((moveBitBoard & xRayMoves) != 0) {
+        b.move( m );
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else {
+          legalMoves.add( m );
         }
-        stopwatch.stop(); // optional
-
-        log.debug("legalizeMoves took : {}",
-                stopwatch);
-        return legalMoves;
-    }
-
-    private boolean isWhiteChecked() {
-        long attacks = pawnAttackLeft(false) | pawnAttackRight(false) | getBlackMovement();
-        return isSquareAttackedBy(b.getWhiteKingSquare(),
-                attacks);
-    }
-
-    private boolean isBlackChecked() {
-        long attacks = pawnAttackRight(true) | pawnAttackLeft(true) | getWhiteMovement();
-        return isSquareAttackedBy(b.getBlackKingSquare(),
-                attacks);
-    }
-
-    private long getBlackMovement() {
-        Long ans = 0L;
-        for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
-                | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case BLACK_ROOK -> ans |= getRookMovement(square);
-                case BLACK_KNIGHT -> ans |= getKnightMovement(square);
-                case BLACK_BISHOP -> ans |= getBishopMovement(square);
-                case BLACK_QUEEN -> ans |= getQueenMovement(square);
-            }
+        b.undo();
+      } else if (m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
+        b.move( m );
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else {
+          legalMoves.add( m );
         }
-        ans |= getKingMovement(Long.numberOfTrailingZeros(b.getBlackKingBitBoard()));
-        return ans;
-    }
-
-    private long getWhiteMovement() {
-        Long ans = 0L;
-        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
-                | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case WHITE_ROOK -> ans |= getRookMovement(square);
-                case WHITE_KNIGHT -> ans |= getKnightMovement(square);
-                case WHITE_BISHOP -> ans |= getBishopMovement(square);
-                case WHITE_QUEEN -> ans |= getQueenMovement(square);
-            }
+        b.undo();
+      } else if (m.getFrom() == king) {
+        b.move( m );
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else {
+          legalMoves.add( m );
         }
-        ans |= getKingMovement(Long.numberOfTrailingZeros(b.getWhiteKingBitBoard()));
-        return ans;
-    }
-
-    private boolean isSquareAttackedBy(int square, long attack) {
-        return (squares[square] & attack) != 0;
-    }
-
-    private boolean isAttackedBy(long squares, long attack) {
-        return (squares & attack) != 0;
-    }
-
-    private long xrayRookAttacks(long occ, long blockers, int rookSq) {
-        long attacks = getRookMovement(occ, rookSq);
-        blockers &= attacks;
-        return attacks ^ getRookMovement(occ ^ blockers, rookSq);
-    }
-
-    private long xrayBishopAttacks(long occ, long blockers, int bishopSq) {
-        long attacks = getBishopMovement(occ, bishopSq);
-        blockers &= attacks;
-        return attacks ^ getBishopMovement(occ ^ blockers, bishopSq);
-    }
-
-    private String toString(Long test) {
-        String rowString = "   +---+---+---+---+---+---+---+---+";
-        String printBoard = "\n\n" + rowString + "\n";
-        int row = 8;
-        for (int x = 0; x < order.length; x++) {
-            int i = order[x];
-            if (i % 8 == 0) {
-                printBoard += row + "  |";
-                row--;
-            }
-
-            if (((test >> i) & 1) == 1) {
-                printBoard += "(X)" + "|";
-            } else {
-                printBoard += " " + String.format("%02d",
-                        i) + "|";
-            }
-            if (i % 8 == 7) printBoard += "\n" + rowString + "\n";
+        b.undo();
+      } else if (isChecked) {
+        b.move( m );
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace( "{} is an illegal move.",
+                     m );
+        } else {
+          legalMoves.add( m );
         }
-        printBoard += "     a   b   c   d   e   f   g   h \n\n";
-        return printBoard;
+        b.undo();
+      } else {
+        log.trace( "Move {} is not checked on board {}",
+                   m,
+                   b );
+        legalMoves.add( m );
+      }
     }
+    stopwatch.stop(); // optional
+
+    log.debug( "legalizeMoves took : {}",
+               stopwatch );
+    return legalMoves;
+  }
+
+  private
+  boolean isWhiteChecked() {
+    long attacks = pawnAttackLeft( false ) | pawnAttackRight( false ) | getPartialBlackMovement( b.getWhiteKingSquare());
+//    long attacks = pawnAttackLeft( false ) | pawnAttackRight( false ) | getBlackMovement( );
+
+    return isSquareAttackedBy( b.getWhiteKingSquare(),
+                               attacks );
+  }
+
+  private
+  boolean isBlackChecked() {
+    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getPartialWhiteMovement( b.getBlackKingSquare());
+//    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
+    return isSquareAttackedBy( b.getBlackKingSquare(),
+                               attacks );
+  }
+
+  private
+  long getPartialBlackMovement(int dangerSquare) {
+    long rookXRayMoves = getRookMovement( dangerSquare );
+    long bishopXRayMoves = getBishopMovement( dangerSquare );
+    long knightMoves = getKnightMovement( dangerSquare );
+
+    long temp1 = rookXRayMoves & (b.getBlackRookBitBoard() | b.getBlackQueenBitBoard());
+    long temp2 = bishopXRayMoves & (b.getBlackBishopBitBoard() | b.getBlackQueenBitBoard());
+    long temp3 = knightMoves & (b.getBlackKnightBitBoard());
+
+    Long ans = 0L;
+    for (long temp = (temp1 | temp2 | temp3); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int square = Long.numberOfTrailingZeros( temp );
+      switch (b.pieceAtSquare( square )) {
+        case BLACK_ROOK -> ans |= getRookMovement( square );
+        case BLACK_KNIGHT -> ans |= getKnightMovement( square );
+        case BLACK_BISHOP -> ans |= getBishopMovement( square );
+        case BLACK_QUEEN -> ans |= getQueenMovement( square );
+      }
+    }
+    ans |= getKingMovement( Long.numberOfTrailingZeros( b.getBlackKingBitBoard() ) );
+    return ans;
+  }
+
+  private
+  long getBlackMovement() {
+    Long ans = 0L;
+    for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
+                      | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int square = Long.numberOfTrailingZeros( temp );
+      switch (b.pieceAtSquare( square )) {
+        case BLACK_ROOK -> ans |= getRookMovement( square );
+        case BLACK_KNIGHT -> ans |= getKnightMovement( square );
+        case BLACK_BISHOP -> ans |= getBishopMovement( square );
+        case BLACK_QUEEN -> ans |= getQueenMovement( square );
+      }
+    }
+    ans |= getKingMovement( Long.numberOfTrailingZeros( b.getBlackKingBitBoard() ) );
+    return ans;
+  }
+
+  private
+  long getPartialWhiteMovement(int dangerSquare) {
+    long rookXRayMoves = getRookMovement( dangerSquare );
+    long bishopXRayMoves = getBishopMovement( dangerSquare );
+    long knightMoves = getKnightMovement( dangerSquare );
+
+
+    long temp1 = rookXRayMoves & (b.getWhiteRookBitBoard() | b.getWhiteQueenBitBoard());
+    long temp2 = bishopXRayMoves & (b.getWhiteBishopBitBoard() | b.getWhiteQueenBitBoard());
+    long temp3 = knightMoves & (b.getWhiteKnightBitBoard());
+
+    Long ans = 0L;
+    for (long temp = (temp1 | temp2 | temp3); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int square = Long.numberOfTrailingZeros( temp );
+      switch (b.pieceAtSquare( square )) {
+        case WHITE_ROOK -> ans |= getRookMovement( square );
+        case WHITE_KNIGHT -> ans |= getKnightMovement( square );
+        case WHITE_BISHOP -> ans |= getBishopMovement( square );
+        case WHITE_QUEEN -> ans |= getQueenMovement( square );
+      }
+    }
+    ans |= getKingMovement( Long.numberOfTrailingZeros( b.getWhiteKingBitBoard() ) );
+    return ans;
+  }
+
+  private
+  long getWhiteMovement() {
+    Long ans = 0L;
+    for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
+                      | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
+      int square = Long.numberOfTrailingZeros( temp );
+      switch (b.pieceAtSquare( square )) {
+        case WHITE_ROOK -> ans |= getRookMovement( square );
+        case WHITE_KNIGHT -> ans |= getKnightMovement( square );
+        case WHITE_BISHOP -> ans |= getBishopMovement( square );
+        case WHITE_QUEEN -> ans |= getQueenMovement( square );
+      }
+    }
+    ans |= getKingMovement( Long.numberOfTrailingZeros( b.getWhiteKingBitBoard() ) );
+    return ans;
+  }
+
+  private
+  boolean isSquareAttackedBy(int square, long attack) {
+    return (squares[square] & attack) != 0;
+  }
+
+  private
+  boolean isAttackedBy(long squares, long attack) {
+    return (squares & attack) != 0;
+  }
+
+  private
+  long xrayRookAttacks(long occ, long blockers, int rookSq) {
+    long attacks = getRookMovement( occ,
+                                    rookSq );
+    blockers &= attacks;
+    return attacks ^ getRookMovement( occ ^ blockers,
+                                      rookSq );
+  }
+
+  private
+  long xrayBishopAttacks(long occ, long blockers, int bishopSq) {
+    long attacks = getBishopMovement( occ,
+                                      bishopSq );
+    blockers &= attacks;
+    return attacks ^ getBishopMovement( occ ^ blockers,
+                                        bishopSq );
+  }
+
+  private
+  String toString(Long test) {
+    String rowString = "   +---+---+---+---+---+---+---+---+";
+    String printBoard = "\n\n" + rowString + "\n";
+    int row = 8;
+    for (int x = 0; x < order.length; x++) {
+      int i = order[x];
+      if (i % 8 == 0) {
+        printBoard += row + "  |";
+        row--;
+      }
+
+      if (((test >> i) & 1) == 1) {
+        printBoard += "(X)" + "|";
+      } else {
+        printBoard += " " + String.format( "%02d",
+                                           i ) + "|";
+      }
+      if (i % 8 == 7) printBoard += "\n" + rowString + "\n";
+    }
+    printBoard += "     a   b   c   d   e   f   g   h \n\n";
+    return printBoard;
+  }
 
 
 }
