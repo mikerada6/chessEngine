@@ -14,23 +14,27 @@ public class PerftTest extends TestCase {
     private static final Logger log = LogManager.getLogger(PerftTest.class);
 
 //    public void testDivide1() {
-//        Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ");
+//        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//
 //        System.out.println(b);
-//        b.move(new  Move(0, 1,  MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(23, 14, MoveFlags.CAPTURE_FLAG));
-////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(12, 12+8,  MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(48, 32, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(3, 39, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(14, 22, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(12, 4, MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG));
 ////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(5, 6, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new Move(60, 62, KING_CASTLE_FLAG));
 //
+//        MoveGenerator mg = new MoveGenerator(b);
 //        System.out.println(b);
-//        System.out.println(Perft.divide(b, 2));
+//        System.out.println(mg.getMoves());
+//
+//        System.out.println(Perft.divide(b, 1));
 //    }
 
 //  public void testTest1(){
-//    Board b = new Board("4k3/8/8/8/8/8/8/4K2R w K - 0 1");
+//    Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //    log.info("fen: {}", b.getFEN());
 //    System.out.println(b);
 //    MoveGenerator mg = new MoveGenerator(b);

@@ -714,10 +714,16 @@ class MoveGenerator {
 
   private
   long getRookMovement(int square) {
+
+    long occupied = b.getOccupiedBitBoard();
+    return getRookMovement(occupied, square);
+  }
+
+  private
+  long getRookMovement(long occupied, int square) {
     long binaryS = 1L << square;
     long r = Long.reverse( binaryS );
     long twoR = 2 * r;
-    long occupied = b.getOccupiedBitBoard();
     long fMask = fileMask[square % 8];
 
     long one = ((occupied & fMask) - (2 * binaryS)) ^ Long.reverse( Long.reverse( occupied & fMask ) - (twoR) );
@@ -813,16 +819,22 @@ class MoveGenerator {
 
   private
   long getBishopMovement(int square) {
+
+    long occupied = b.getOccupiedBitBoard();
+    return getBishopMovement(occupied, square);
+
+  }
+
+  private
+  long getBishopMovement(long occupied, int square) {
     long binaryS = 1L << square;
     long r = Long.reverse( binaryS );
     long twoR = 2 * r;
-    long occupied = b.getOccupiedBitBoard();
     long dMask = diagonalMask[7 + square / 8 - square % 8];
     long adMask = antiDiagonalMask[(square / 8) + (square % 8)];
     long one = ((occupied & dMask) - (2 * binaryS)) ^ Long.reverse( Long.reverse( occupied & dMask ) - (twoR) );
     long two = ((occupied & adMask) - (2 * binaryS)) ^ Long.reverse( Long.reverse( occupied & adMask ) - (twoR) );
     return (one & dMask) | (two & adMask);
-
   }
 
   private
@@ -920,19 +932,94 @@ class MoveGenerator {
   private
   List<Move> legalizeMoves(List<Move> pseudoLegalMoves) {
     Stopwatch stopwatch = Stopwatch.createStarted();
+    long all;
+    long me;
+    int king;
+    boolean isChecked;
+    if(b.isWhitesTurn())
+    {
+      all = b.getOccupiedBitBoard();
+      me = b.getWhiteBitBoard();
+      king = b.getWhiteKingSquare();
+      isChecked = isWhiteChecked();
+    }
+    else {
+      all = b.getOccupiedBitBoard();
+      me = b.getBlackBitBoard();
+      king = b.getBlackKingSquare();
+      isChecked = isBlackChecked();
+    }
+//    long rookXRayMoves = xrayRookAttacks(all, me, king);
+//    long bishopXRayMoves = xrayBishopAttacks(all, me, king);
+//    long xRayMoves = rookXRayMoves|bishopXRayMoves;
+
+    long rookXRayMoves = getRookMovement(king);
+    long bishopXRayMoves = getBishopMovement(king);
+    long xRayMoves = rookXRayMoves|bishopXRayMoves;
+
+
     List<Move> legalMoves = new LinkedList<>();
     for (Move m : pseudoLegalMoves) {
-      b.move( m );
-      if (b.isWhitesTurn() && isBlackChecked()) {
-        log.trace( "{} is an illegal move.",
-                   m );
-      } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-        log.trace( "{} is an illegal move.",
-                   m );
-      } else {
-        legalMoves.add( m );
+      long moveBitBoard = 1L << m.getFrom();
+
+      if((moveBitBoard & xRayMoves) != 0) {
+        b.move(m);
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else {
+          legalMoves.add(m);
+        }
+        b.undo();
       }
-      b.undo();
+      else if(m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
+        b.move(m);
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else {
+          legalMoves.add(m);
+        }
+        b.undo();
+      }
+      else if(m.getFrom() == king)
+      {
+        b.move(m);
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else {
+          legalMoves.add(m);
+        }
+        b.undo();
+      }
+      else if(isChecked)
+      {
+        b.move(m);
+        if (b.isWhitesTurn() && isBlackChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+          log.trace("{} is an illegal move.",
+                  m);
+        } else {
+          legalMoves.add(m);
+        }
+        b.undo();
+      }
+      else {
+        log.trace("Move {} is not checked on board {}", m, b);
+        legalMoves.add(m);
+      }
     }
     stopwatch.stop(); // optional
 
@@ -999,6 +1086,18 @@ class MoveGenerator {
     return (squares & attack) != 0;
   }
 
+  private long xrayRookAttacks(long occ, long blockers, int rookSq) {
+    long attacks = getRookMovement(occ, rookSq);
+    blockers &= attacks;
+    return attacks ^ getRookMovement(occ ^ blockers, rookSq);
+  }
+
+  private long xrayBishopAttacks(long occ, long blockers, int bishopSq) {
+    long attacks = getBishopMovement(occ, bishopSq);
+    blockers &= attacks;
+    return attacks ^ getBishopMovement(occ ^ blockers, bishopSq);
+  }
+
   private
   String toString(Long test) {
     String rowString = "   +---+---+---+---+---+---+---+---+";
@@ -1023,21 +1122,6 @@ class MoveGenerator {
     return printBoard;
   }
 
-  private
-  int countBits(long x) {
-    long m1 = 0x5555555555555555L; // binary: 0101...
-    long m2 = 0x3333333333333333L; // binary: 00110011..
-    long m4 = 0x0f0f0f0f0f0f0f0fL; // binary: 4 zeros, 4 ones ...
-
-    x -= (x >> 1) & m1; // put count of each 2 bits into those 2 bits
-    x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4
-    // bits
-    x = (x + (x >> 4)) & m4; // put count of each 8 bits into those 8 bits
-    x += x >> 8; // put count of each 16 bits into their lowest 8 bits
-    x += x >> 16; // put count of each 32 bits into their lowest 8 bits
-    x += x >> 32; // put count of each 64 bits into their lowest 8 bits
-    return (int) (x & 0x7fL);
-  }
 
 
 }
