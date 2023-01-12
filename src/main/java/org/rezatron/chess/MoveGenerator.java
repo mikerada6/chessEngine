@@ -1026,34 +1026,38 @@ class MoveGenerator {
     return legalMoves;
   }
 
-  private
+  public
   boolean isWhiteChecked() {
     int dangerSquare = b.getWhiteKingSquare();
     long rookXRayMoves = getRookMovement( dangerSquare );
     long bishopXRayMoves = getBishopMovement( dangerSquare );
     long knightMoves = getKnightMovement( dangerSquare );
+    long kingSquare = 1L<<  b.getWhiteKingSquare();
 
     long temp1 = rookXRayMoves & (b.getBlackRookBitBoard() | b.getBlackQueenBitBoard());
     long temp2 = bishopXRayMoves & (b.getBlackBishopBitBoard() | b.getBlackQueenBitBoard());
     long temp3 = knightMoves & (b.getBlackKnightBitBoard());
+    long temp4 = (kingSquare & getKingMovement( b.getBlackKingSquare()));
     long attacks =
-      (b.getWhiteKingSquare() & pawnAttackRight( true )) | (b.getWhiteKingSquare() & pawnAttackLeft( true )) | temp1 | temp2 | temp3;
+      (kingSquare & pawnAttackRight( false )) | (kingSquare & pawnAttackLeft( false )) | temp1 | temp2 | temp3 | temp4;
 //    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
     return attacks!= 0;
   }
 
-  private
+  public
   boolean isBlackChecked() {
     int dangerSquare = b.getBlackKingSquare();
     long rookXRayMoves = getRookMovement( dangerSquare );
     long bishopXRayMoves = getBishopMovement( dangerSquare );
     long knightMoves = getKnightMovement( dangerSquare );
+    long kingSquare = 1L<<  b.getBlackKingSquare();
 
     long temp1 = rookXRayMoves & (b.getWhiteRookBitBoard() | b.getWhiteQueenBitBoard());
     long temp2 = bishopXRayMoves & (b.getWhiteBishopBitBoard() | b.getWhiteQueenBitBoard());
     long temp3 = knightMoves & (b.getWhiteKnightBitBoard());
+    long temp4 = (kingSquare & getKingMovement( b.getWhiteKingSquare()));
     long attacks =
-      (b.getBlackKingSquare() & pawnAttackRight( true )) | (b.getBlackKingSquare() & pawnAttackLeft( true )) | temp1 | temp2 | temp3;
+      (kingSquare & pawnAttackRight( true )) | (kingSquare & pawnAttackLeft( true )) | temp1 | temp2 | temp3 | temp4;
 //    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
     return attacks!= 0;
   }

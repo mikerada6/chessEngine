@@ -1615,7 +1615,7 @@ public class PerftTest extends TestCase {
     runPerftTest(15833292, b, 5);
   }
   public void testPerft130_b() {
-    Board b = new Board("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1 \n");
+    Board b = new Board("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1");
     log.info("fen: {}", b.getFEN());
     runPerftTest(6, b, 1);
     runPerftTest(264, b, 2);
