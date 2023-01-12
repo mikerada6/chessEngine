@@ -1028,23 +1028,7 @@ class MoveGenerator {
 
   private
   boolean isWhiteChecked() {
-    long attacks = pawnAttackLeft( false ) | pawnAttackRight( false ) | getPartialBlackMovement( b.getWhiteKingSquare());
-//    long attacks = pawnAttackLeft( false ) | pawnAttackRight( false ) | getBlackMovement( );
-
-    return isSquareAttackedBy( b.getWhiteKingSquare(),
-                               attacks );
-  }
-
-  private
-  boolean isBlackChecked() {
-    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getPartialWhiteMovement( b.getBlackKingSquare());
-//    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
-    return isSquareAttackedBy( b.getBlackKingSquare(),
-                               attacks );
-  }
-
-  private
-  long getPartialBlackMovement(int dangerSquare) {
+    int dangerSquare = b.getWhiteKingSquare();
     long rookXRayMoves = getRookMovement( dangerSquare );
     long bishopXRayMoves = getBishopMovement( dangerSquare );
     long knightMoves = getKnightMovement( dangerSquare );
@@ -1052,19 +1036,26 @@ class MoveGenerator {
     long temp1 = rookXRayMoves & (b.getBlackRookBitBoard() | b.getBlackQueenBitBoard());
     long temp2 = bishopXRayMoves & (b.getBlackBishopBitBoard() | b.getBlackQueenBitBoard());
     long temp3 = knightMoves & (b.getBlackKnightBitBoard());
+    long attacks =
+      (b.getWhiteKingSquare() & pawnAttackRight( true )) | (b.getWhiteKingSquare() & pawnAttackLeft( true )) | temp1 | temp2 | temp3;
+//    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
+    return attacks!= 0;
+  }
 
-    Long ans = 0L;
-    for (long temp = (temp1 | temp2 | temp3); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
-      int square = Long.numberOfTrailingZeros( temp );
-      switch (b.pieceAtSquare( square )) {
-        case BLACK_ROOK -> ans |= getRookMovement( square );
-        case BLACK_KNIGHT -> ans |= getKnightMovement( square );
-        case BLACK_BISHOP -> ans |= getBishopMovement( square );
-        case BLACK_QUEEN -> ans |= getQueenMovement( square );
-      }
-    }
-    ans |= getKingMovement( Long.numberOfTrailingZeros( b.getBlackKingBitBoard() ) );
-    return ans;
+  private
+  boolean isBlackChecked() {
+    int dangerSquare = b.getBlackKingSquare();
+    long rookXRayMoves = getRookMovement( dangerSquare );
+    long bishopXRayMoves = getBishopMovement( dangerSquare );
+    long knightMoves = getKnightMovement( dangerSquare );
+
+    long temp1 = rookXRayMoves & (b.getWhiteRookBitBoard() | b.getWhiteQueenBitBoard());
+    long temp2 = bishopXRayMoves & (b.getWhiteBishopBitBoard() | b.getWhiteQueenBitBoard());
+    long temp3 = knightMoves & (b.getWhiteKnightBitBoard());
+    long attacks =
+      (b.getBlackKingSquare() & pawnAttackRight( true )) | (b.getBlackKingSquare() & pawnAttackLeft( true )) | temp1 | temp2 | temp3;
+//    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
+    return attacks!= 0;
   }
 
   private
@@ -1084,30 +1075,6 @@ class MoveGenerator {
     return ans;
   }
 
-  private
-  long getPartialWhiteMovement(int dangerSquare) {
-    long rookXRayMoves = getRookMovement( dangerSquare );
-    long bishopXRayMoves = getBishopMovement( dangerSquare );
-    long knightMoves = getKnightMovement( dangerSquare );
-
-
-    long temp1 = rookXRayMoves & (b.getWhiteRookBitBoard() | b.getWhiteQueenBitBoard());
-    long temp2 = bishopXRayMoves & (b.getWhiteBishopBitBoard() | b.getWhiteQueenBitBoard());
-    long temp3 = knightMoves & (b.getWhiteKnightBitBoard());
-
-    Long ans = 0L;
-    for (long temp = (temp1 | temp2 | temp3); temp != 0; temp -= 1L << Long.numberOfTrailingZeros( temp )) {
-      int square = Long.numberOfTrailingZeros( temp );
-      switch (b.pieceAtSquare( square )) {
-        case WHITE_ROOK -> ans |= getRookMovement( square );
-        case WHITE_KNIGHT -> ans |= getKnightMovement( square );
-        case WHITE_BISHOP -> ans |= getBishopMovement( square );
-        case WHITE_QUEEN -> ans |= getQueenMovement( square );
-      }
-    }
-    ans |= getKingMovement( Long.numberOfTrailingZeros( b.getWhiteKingBitBoard() ) );
-    return ans;
-  }
 
   private
   long getWhiteMovement() {
