@@ -107,7 +107,7 @@ public class ChessConstants {
             "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8",
             "d8", "e8", "f8", "g8", "h8"};
     public static final long KING_SPAN = 460039L;
-  public static final long FILE_A = 72340172838076673L;
+    public static final long FILE_A = 72340172838076673L;
     public static final long FILE_H = -9187201950435737472L;
     public static final long FILE_AB = 217020518514230019L;
     public static final long FILE_GH = -4557430888798830400L;

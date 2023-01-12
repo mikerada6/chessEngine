@@ -18,12 +18,12 @@ class Board {
     private final List<BoardHistory> history;
     //  private final List<String> enPassantTargetHistory;
     private final int[] moves;
-    private String enPassantTarget;
     //  private long whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard, whiteKingBitBoard,
 //    whiteQueenBitBoard, blackRookBitBoard, blackKnightBitBoard, blackBishopBitBoard, blackKingBitBoard,
 //    blackQueenBitBoard, blackPawnBitBoard, whiteBitBoard, blackBitBoard, occupiedBitBoard, emptyBitBoard;
-//  
+//
     private final long[] bitboards = new long[16];
+    private String enPassantTarget;
     private boolean blackKingSideCastle, blackQueenSideCastle, whiteKingSideCastle, whiteQueenSideCastle;
     private long fortyMoveCount;
     private boolean isWhitesTurn;
