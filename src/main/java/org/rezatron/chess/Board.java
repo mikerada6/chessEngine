@@ -21,7 +21,7 @@ class Board {
   private String enPassantTarget;
   private long whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard, whiteKingBitBoard,
     whiteQueenBitBoard, blackRookBitBoard, blackKnightBitBoard, blackBishopBitBoard, blackKingBitBoard,
-    blackQueenBitBoard, blackPawnBitBoard;
+    blackQueenBitBoard, blackPawnBitBoard, whiteBitBoard, blackBitBoard, occupiedBitBoard, emptyBitBoard;
   private boolean blackKingSideCastle, blackQueenSideCastle, whiteKingSideCastle, whiteQueenSideCastle;
   private long fortyMoveCount;
   private boolean isWhitesTurn;
@@ -56,6 +56,13 @@ class Board {
     moveCount = 0;
     updateHistory();
     moveCount = 1;
+
+    whiteBitBoard = whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
+                    | whitePawnBitBoard;
+    blackBitBoard = blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard
+                    | blackPawnBitBoard;
+    occupiedBitBoard = whiteBitBoard | blackBitBoard;
+    emptyBitBoard = ~occupiedBitBoard;
   }
 
   public
@@ -191,6 +198,13 @@ class Board {
     moveCount = 0;
     updateHistory();
     moveCount = 1;
+
+    whiteBitBoard = whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
+                    | whitePawnBitBoard;
+    blackBitBoard = blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard
+                    | blackPawnBitBoard;
+    occupiedBitBoard = whiteBitBoard | blackBitBoard;
+    emptyBitBoard = ~occupiedBitBoard;
   }
 
   public
@@ -263,6 +277,12 @@ class Board {
     // + bq + "," + bk + "," + wkc + "," + wqc + "," + bkc + "," + bqc
     // + "," + enPassantTarget + "," + fortyMoveCount
 
+    whiteBitBoard = whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
+                    | whitePawnBitBoard;
+    blackBitBoard = blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard
+                    | blackPawnBitBoard;
+    occupiedBitBoard = whiteBitBoard | blackBitBoard;
+    emptyBitBoard = ~occupiedBitBoard;
   }
 
   public
@@ -440,26 +460,24 @@ class Board {
 
     isWhitesTurn = !isWhitesTurn;
     updateHistory();
-    // moves[moveCount] = move;
     moveCount++;
+
+    whiteBitBoard = whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
+                    | whitePawnBitBoard;
+    blackBitBoard = blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard
+                    | blackPawnBitBoard;
+    occupiedBitBoard = whiteBitBoard | blackBitBoard;
+    emptyBitBoard = ~occupiedBitBoard;
   }
 
   private
   void updateHistory() {
-    /*
-     * history[moveCount] = wp + "," + wr + "," + wn + "," + wb + "," + wq +
-     * "," + wk + "," + bp + "," + br + "," + bn + "," + bb + "," + bq + ","
-     * + bk + "," + wkc + "," + wqc + "," + bkc + "," + bqc + "," +
-     * enPassantTarget + "," + fortyMoveCount;
-     */
     BoardHistory bh = new BoardHistory( whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard,
                                         whiteQueenBitBoard, whiteKingBitBoard, blackPawnBitBoard, blackRookBitBoard,
                                         blackKnightBitBoard, blackBishopBitBoard, blackQueenBitBoard, blackKingBitBoard,
                                         whiteKingSideCastle, whiteQueenSideCastle, blackKingSideCastle,
                                         blackQueenSideCastle, fortyMoveCount, enPassantTarget );
     history.add(bh);
-//    enPassantTargetHistory.add( enPassantTarget );
-
   }
 
   public
@@ -602,18 +620,18 @@ class Board {
 
   public
   ChessPiece pieceAtSquare(int square) {
+    if ((emptyBitBoard & squares[square]) != 0) return ChessPiece.EMPTY;
     if ((whitePawnBitBoard & squares[square]) != 0) return ChessPiece.WHITE_PAWN;
-    if ((whiteRookBitBoard & squares[square]) != 0) return ChessPiece.WHITE_ROOK;
-    if ((whiteKnightBitBoard & squares[square]) != 0) return ChessPiece.WHITE_KNIGHT;
-    if ((whiteBishopBitBoard & squares[square]) != 0) return ChessPiece.WHITE_BISHOP;
-    if ((whiteQueenBitBoard & squares[square]) != 0) return ChessPiece.WHITE_QUEEN;
-    if ((whiteKingBitBoard & squares[square]) != 0) return ChessPiece.WHITE_KING;
-
     if ((blackPawnBitBoard & squares[square]) != 0) return ChessPiece.BLACK_PAWN;
-    if ((blackRookBitBoard & squares[square]) != 0) return ChessPiece.BLACK_ROOK;
-    if ((blackKnightBitBoard & squares[square]) != 0) return ChessPiece.BLACK_KNIGHT;
-    if ((blackBishopBitBoard & squares[square]) != 0) return ChessPiece.BLACK_BISHOP;
+    if ((whiteQueenBitBoard & squares[square]) != 0) return ChessPiece.WHITE_QUEEN;
     if ((blackQueenBitBoard & squares[square]) != 0) return ChessPiece.BLACK_QUEEN;
+    if ((whiteRookBitBoard & squares[square]) != 0) return ChessPiece.WHITE_ROOK;
+    if ((blackRookBitBoard & squares[square]) != 0) return ChessPiece.BLACK_ROOK;
+    if ((whiteBishopBitBoard & squares[square]) != 0) return ChessPiece.WHITE_BISHOP;
+    if ((blackBishopBitBoard & squares[square]) != 0) return ChessPiece.BLACK_BISHOP;
+    if ((whiteKnightBitBoard & squares[square]) != 0) return ChessPiece.WHITE_KNIGHT;
+    if ((blackKnightBitBoard & squares[square]) != 0) return ChessPiece.BLACK_KNIGHT;
+    if ((whiteKingBitBoard & squares[square]) != 0) return ChessPiece.WHITE_KING;
     if ((blackKingBitBoard & squares[square]) != 0) return ChessPiece.BLACK_KING;
     return ChessPiece.EMPTY;
   }
@@ -627,28 +645,22 @@ class Board {
 
   public
   long getWhiteBitBoard() {
-    return whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
-           | whitePawnBitBoard;
+    return whiteBitBoard;
   }
 
   public
   long getBlackBitBoard() {
-    return blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard | blackKingBitBoard
-           | blackPawnBitBoard;
+    return blackBitBoard;
   }
 
   public
   long getOccupiedBitBoard() {
-    return whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
-           | whitePawnBitBoard | blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard
-           | blackKingBitBoard | blackPawnBitBoard;
+    return occupiedBitBoard;
   }
 
   public
   long getEmptyBitBoard() {
-    return ~(whiteRookBitBoard | whiteKnightBitBoard | whiteBishopBitBoard | whiteQueenBitBoard | whiteKingBitBoard
-             | whitePawnBitBoard | blackRookBitBoard | blackKnightBitBoard | blackBishopBitBoard | blackQueenBitBoard
-             | blackKingBitBoard | blackPawnBitBoard);
+    return emptyBitBoard;
   }
 
   public

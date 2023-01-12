@@ -14,7 +14,8 @@ public class Perft {
     private static final Logger log = LogManager.getLogger(Perft.class);
 
     private static long diveIn(Board board, int depth) {
-        List<Move> moveList = MoveGenerator.getMoves( board);
+      MoveGenerator mg = new MoveGenerator(board);
+        List<Move> moveList = mg.getMoves( );
         if (moveList.size() == 0 && depth != 0) {
             return 0;
         } else if (moveList.size() == 0 || depth == 1) {
@@ -35,7 +36,8 @@ public class Perft {
     public static String divide(Board board, int depth) {
         System.out.println("Divide for board :" + board.getFEN()
                 + "\n\t Depth: " + depth);
-        List<Move> moveList = MoveGenerator.getMoves(board);
+      MoveGenerator mg = new MoveGenerator(board);
+        List<Move> moveList = mg.getMoves();
         String[] ary1 = new String[moveList.size()];
         long[] count = new long[ary1.length];
         StringBuilder answer = new StringBuilder();
@@ -61,8 +63,8 @@ public class Perft {
 
 
     public static long perft(Board board, int depth) {
-
-        List<Move> moveList = MoveGenerator.getMoves(board);
+      MoveGenerator mg = new MoveGenerator(board);
+        List<Move> moveList = mg.getMoves();
         if (depth == 1) {
             return moveList.size();
         }

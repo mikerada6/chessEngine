@@ -30,9 +30,11 @@ public class PerftTest extends TestCase {
 //    }
 
 //  public void testTest1(){
-//    Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//    Board b = new Board("4k3/8/8/8/8/8/8/4K2R w K - 0 1");
 //    log.info("fen: {}", b.getFEN());
-//    runPerftTest(119060324, b, 6);
+//    System.out.println(b);
+//    MoveGenerator mg = new MoveGenerator(b);
+//    System.out.println(mg.getMoves());
 //  }
 
     public void runPerftTest(long expected, Board b, int depth) {
@@ -1583,5 +1585,36 @@ public class PerftTest extends TestCase {
         runPerftTest(3151343, b, 6);
         runPerftTest(67820026, b, 7);
     }
+
+  public void testPerft129() {
+    Board b = new Board("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
+    log.info("fen: {}", b.getFEN());
+    runPerftTest(14, b, 1);
+    runPerftTest(191, b, 2);
+    runPerftTest(2812, b, 3);
+    runPerftTest(43238, b, 4);
+    runPerftTest(674624, b, 5);
+    runPerftTest(11030083, b, 6);
+    runPerftTest(178633661, b, 7);
+  }
+
+  public void testPerft130_a() {
+    Board b = new Board("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+    log.info("fen: {}", b.getFEN());
+    runPerftTest(6, b, 1);
+    runPerftTest(264, b, 2);
+    runPerftTest(9467, b, 3);
+    runPerftTest(422333, b, 4);
+    runPerftTest(15833292, b, 5);
+  }
+  public void testPerft130_b() {
+    Board b = new Board("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1 \n");
+    log.info("fen: {}", b.getFEN());
+    runPerftTest(6, b, 1);
+    runPerftTest(264, b, 2);
+    runPerftTest(9467, b, 3);
+    runPerftTest(422333, b, 4);
+    runPerftTest(15833292, b, 5);
+  }
 
 }
