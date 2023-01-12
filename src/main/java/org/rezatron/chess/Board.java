@@ -23,7 +23,7 @@ class Board {
 //    whiteQueenBitBoard, blackRookBitBoard, blackKnightBitBoard, blackBishopBitBoard, blackKingBitBoard,
 //    blackQueenBitBoard, blackPawnBitBoard, whiteBitBoard, blackBitBoard, occupiedBitBoard, emptyBitBoard;
 //  
-    private long[] bitboards = new long[16];
+    private final long[] bitboards = new long[16];
     private boolean blackKingSideCastle, blackQueenSideCastle, whiteKingSideCastle, whiteQueenSideCastle;
     private long fortyMoveCount;
     private boolean isWhitesTurn;
@@ -59,23 +59,6 @@ class Board {
         moveCount = 1;
 
         updateGlobalBitBoards();
-    }
-
-    private void updateGlobalBitBoards() {
-        bitboards[whiteBitBoard] = bitboards[whitePawnBitBoard] |
-                bitboards[whiteRookBitBoard] |
-                bitboards[whiteKnightBitBoard] |
-                bitboards[whiteBishopBitBoard] |
-                bitboards[whiteQueenBitBoard] |
-                bitboards[whiteKingBitBoard];
-        bitboards[blackBitBoard] = bitboards[blackPawnBitBoard] |
-                bitboards[blackRookBitBoard] |
-                bitboards[blackKnightBitBoard] |
-                bitboards[blackBishopBitBoard] |
-                bitboards[blackQueenBitBoard] |
-                bitboards[blackKingBitBoard];
-        bitboards[occupiedBitBoard] = bitboards[whiteBitBoard] | bitboards[blackBitBoard];
-        bitboards[emptyBitBoard] = ~bitboards[occupiedBitBoard];
     }
 
     public Board(String fenString) {
@@ -213,6 +196,23 @@ class Board {
         moveCount = 0;
         updateHistory();
         moveCount = 1;
+    }
+
+    private void updateGlobalBitBoards() {
+        bitboards[whiteBitBoard] = bitboards[whitePawnBitBoard] |
+                bitboards[whiteRookBitBoard] |
+                bitboards[whiteKnightBitBoard] |
+                bitboards[whiteBishopBitBoard] |
+                bitboards[whiteQueenBitBoard] |
+                bitboards[whiteKingBitBoard];
+        bitboards[blackBitBoard] = bitboards[blackPawnBitBoard] |
+                bitboards[blackRookBitBoard] |
+                bitboards[blackKnightBitBoard] |
+                bitboards[blackBishopBitBoard] |
+                bitboards[blackQueenBitBoard] |
+                bitboards[blackKingBitBoard];
+        bitboards[occupiedBitBoard] = bitboards[whiteBitBoard] | bitboards[blackBitBoard];
+        bitboards[emptyBitBoard] = ~bitboards[occupiedBitBoard];
     }
 
     public void undo() {
@@ -457,7 +457,7 @@ class Board {
     }
 
     private void updateHistory() {
-        BoardHistory bh = new BoardHistory(bitboards[whitePawnBitBoard], bitboards[whiteRookBitBoard], bitboards[whiteKnightBitBoard],bitboards[ whiteBishopBitBoard],
+        BoardHistory bh = new BoardHistory(bitboards[whitePawnBitBoard], bitboards[whiteRookBitBoard], bitboards[whiteKnightBitBoard], bitboards[whiteBishopBitBoard],
                 bitboards[whiteQueenBitBoard], bitboards[whiteKingBitBoard], bitboards[blackPawnBitBoard], bitboards[blackRookBitBoard],
                 bitboards[blackKnightBitBoard], bitboards[blackBishopBitBoard], bitboards[blackQueenBitBoard], bitboards[blackKingBitBoard],
                 whiteKingSideCastle, whiteQueenSideCastle, blackKingSideCastle,

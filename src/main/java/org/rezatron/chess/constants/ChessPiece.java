@@ -7,7 +7,7 @@ public enum ChessPiece {
     BLACK_PAWN(blackPawnBitBoard), BLACK_ROOK(blackRookBitBoard), BLACK_KNIGHT(blackKingBitBoard), BLACK_BISHOP(blackBishopBitBoard), BLACK_QUEEN(blackQueenBitBoard), BLACK_KING(blackKingBitBoard),
     EMPTY(emptyBitBoard);
 
-    private int bitBoardIndex;
+    private final int bitBoardIndex;
 
     ChessPiece(int bitBoardIndex) {
         this.bitBoardIndex = bitBoardIndex;
