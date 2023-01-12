@@ -193,4 +193,21 @@ public class ChessConstants {
     public static final long CENTRE = 103481868288L;
     public static final long EXTENDED_CENTRE = 66229406269440L;
     public static final long KNIGHT_SPAN = 43234889994L;
+
+  public static final int whitePawnBitBoard = 0;
+  public static final int whiteRookBitBoard = 1;
+  public static final int whiteKnightBitBoard = 2;
+  public static final int whiteBishopBitBoard = 3;
+  public static final int whiteQueenBitBoard = 4;
+  public static final int whiteKingBitBoard = 5;
+  public static final int blackPawnBitBoard = 6;
+  public static final int blackRookBitBoard = 7;
+  public static final int blackKnightBitBoard = 8;
+  public static final int blackBishopBitBoard = 9;
+  public static final int blackQueenBitBoard = 10;
+  public static final int blackKingBitBoard = 11;
+  public static final int whiteBitBoard = 12;
+  public static final int blackBitBoard = 13;
+  public static final int occupiedBitBoard = 14;
+  public static final int emptyBitBoard = 15;
 }

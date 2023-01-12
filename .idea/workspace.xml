@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8c3f14c-4f2c-47df-8a81-8c365146b49a" name="Changes" comment="update to speed by checking &quot;star&quot;">
+    <list default="true" id="c8c3f14c-4f2c-47df-8a81-8c365146b49a" name="Changes" comment="move update global bitboards BEFORE writing check ability">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/constants/ChessConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/constants/ChessConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/constants/ChessPiece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/rezatron/chess/constants/ChessPiece.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,24 +68,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit3",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit3": "junit.framework.TestCase",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit3&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit3&quot;: &quot;junit.framework.TestCase&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="junit.framework.TestCase" />
@@ -135,6 +137,38 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="MoveTest.testNoPromotionFlags" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="chessEngline" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.rezatron.chess.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.rezatron.chess" />
+      <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.MoveTest" />
+      <option name="METHOD_NAME" value="testNoPromotionFlags(org.rezatron.chess.constants.MoveFlags)" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MoveTest.testPromotionFlags" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="chessEngline" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.rezatron.chess.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.rezatron.chess" />
+      <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.MoveTest" />
+      <option name="METHOD_NAME" value="testPromotionFlags(org.rezatron.chess.constants.MoveFlags)" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="PerftTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="chessEngline" />
       <extension name="coverage">
@@ -146,22 +180,6 @@
       <option name="PACKAGE_NAME" value="org.rezatron.chess" />
       <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.PerftTest" />
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PerftTest.testDivide1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="chessEngline" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.rezatron.chess.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="org.rezatron.chess" />
-      <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.PerftTest" />
-      <option name="METHOD_NAME" value="testDivide1" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -182,22 +200,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PerftTest.testPerft129" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="chessEngline" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.rezatron.chess.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="org.rezatron.chess" />
-      <option name="MAIN_CLASS_NAME" value="org.rezatron.chess.PerftTest" />
-      <option name="METHOD_NAME" value="testPerft129" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="java in chessEngline" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="chessEngline" />
       <option name="TEST_OBJECT" value="directory" />
@@ -209,10 +211,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.java in chessEngline" />
-        <item itemvalue="JUnit.PerftTest.testPerft129" />
+        <item itemvalue="JUnit.MoveTest.testPromotionFlags" />
+        <item itemvalue="JUnit.MoveTest.testNoPromotionFlags" />
         <item itemvalue="JUnit.PerftTest" />
         <item itemvalue="JUnit.PerftTest.testPerft001" />
-        <item itemvalue="JUnit.PerftTest.testDivide1" />
       </list>
     </recent_temporary>
   </component>
@@ -323,7 +325,8 @@
     <MESSAGE value="setup perft testing" />
     <MESSAGE value="speed up" />
     <MESSAGE value="update to speed by checking &quot;star&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="update to speed by checking &quot;star&quot;" />
+    <MESSAGE value="move update global bitboards BEFORE writing check ability" />
+    <option name="LAST_COMMIT_MESSAGE" value="move update global bitboards BEFORE writing check ability" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -347,6 +350,36 @@
           <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
           <line>770</line>
           <option name="timeStamp" value="110" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/Board.java</url>
+          <line>617</line>
+          <option name="timeStamp" value="115" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>49</line>
+          <option name="timeStamp" value="117" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>50</line>
+          <option name="timeStamp" value="119" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/org/rezatron/chess/PerftTest.java</url>
+          <line>30</line>
+          <option name="timeStamp" value="120" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>937</line>
+          <option name="timeStamp" value="122" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/rezatron/chess/MoveGenerator.java</url>
+          <line>1080</line>
+          <option name="timeStamp" value="123" />
         </line-breakpoint>
         <breakpoint enabled="true" type="java-exception">
           <properties class="java.lang.StackOverflowError" package="java.lang" />

@@ -17,10 +17,10 @@ public class PerftTest extends TestCase {
 //        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //
 //        System.out.println(b);
-//        b.move(new  Move(12, 12+8,  MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(8, 16,  MoveFlags.QUITE_MOVE_FLAG));
 //        b.move(new  Move(48, 32, MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(3, 39, MoveFlags.QUITE_MOVE_FLAG));
-////        b.move(new  Move(14, 22, MoveFlags.QUITE_MOVE_FLAG));
+////        b.move(new  Move(3, 39, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(0, 8, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(12, 4, MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG));
 ////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(5, 6, MoveFlags.QUITE_MOVE_FLAG));
@@ -30,11 +30,11 @@ public class PerftTest extends TestCase {
 //        System.out.println(b);
 //        System.out.println(mg.getMoves());
 //
-//        System.out.println(Perft.divide(b, 1));
+//        System.out.println(Perft.divide(b, 3));
 //    }
 
 //  public void testTest1(){
-//    Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//    Board b = new Board();
 //    log.info("fen: {}", b.getFEN());
 //    System.out.println(b);
 //    MoveGenerator mg = new MoveGenerator(b);
