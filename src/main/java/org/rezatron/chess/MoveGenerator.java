@@ -543,35 +543,32 @@ class MoveGenerator {
     private List<Move> getWhiteNonPawnMoves() {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
-        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
-                | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+
+        for (long temp = b.getWhiteRookBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case EMPTY -> {
-                    log.trace("no piece");
-                }
-                case WHITE_ROOK -> {
-                    moves.addAll(getRookMoves((square)));
-                    log.trace("After ROOK: {}",
-                            moves);
-                }
-                case WHITE_KNIGHT -> {
-                    moves.addAll(getKnightMoves((square)));
-                    log.trace("After KNIGHT: {}",
-                            moves);
-                }
-                case WHITE_BISHOP -> {
-                    moves.addAll(getBishopMoves((square)));
-                    log.trace("After BISHOP: {}",
-                            moves);
-                }
-                case WHITE_QUEEN -> {
-                    moves.addAll(getQueenMoves((square)));
-                    log.trace("After QUEEN: {}",
-                            moves);
-                }
-            }
+            moves.addAll(getRookMoves((square)));
+            log.trace("After ROOK: {}",
+                    moves);
         }
+        for (long temp = b.getWhiteBishopBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            moves.addAll(getBishopMoves((square)));
+            log.trace("After BISHOP: {}",
+                    moves);
+        }
+        for (long temp = b.getWhiteKnightBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            moves.addAll(getKnightMoves((square)));
+            log.trace("After KNIGHT: {}",
+                    moves);
+        }
+        for (long temp = b.getWhiteQueenBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            moves.addAll(getQueenMoves((square)));
+            log.trace("After QUEEN: {}",
+                    moves);
+        }
+
         moves.addAll(getKingMoves(Long.numberOfTrailingZeros(b.getWhiteKingBitBoard())));
         long attacks = pawnAttackLeft(false) | pawnAttackRight(false) | getBlackMovement();
 
@@ -601,34 +598,29 @@ class MoveGenerator {
     private List<Move> getBlackNonPawnMoves() {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
-        for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
-                | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getBlackRookBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case EMPTY -> {
-                    log.trace("no piece");
-                }
-                case BLACK_ROOK -> {
-                    moves.addAll(getRookMoves((square)));
-                    log.trace("After ROOK: {}",
-                            moves);
-                }
-                case BLACK_KNIGHT -> {
-                    moves.addAll(getKnightMoves((square)));
-                    log.trace("After KNIGHT: {}",
-                            moves);
-                }
-                case BLACK_BISHOP -> {
-                    moves.addAll(getBishopMoves((square)));
-                    log.trace("After BISHOP: {}",
-                            moves);
-                }
-                case BLACK_QUEEN -> {
-                    moves.addAll(getQueenMoves((square)));
-                    log.trace("After QUEEN: {}",
-                            moves);
-                }
-            }
+            moves.addAll(getRookMoves((square)));
+            log.trace("After ROOK: {}",
+                    moves);
+        }
+        for (long temp = b.getBlackBishopBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            moves.addAll(getBishopMoves((square)));
+            log.trace("After BISHOP: {}",
+                    moves);
+        }
+        for (long temp = b.getBlackKnightBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            moves.addAll(getKnightMoves((square)));
+            log.trace("After KNIGHT: {}",
+                    moves);
+        }
+        for (long temp = b.getBlackQueenBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            moves.addAll(getQueenMoves((square)));
+            log.trace("After QUEEN: {}",
+                    moves);
         }
         moves.addAll(getKingMoves(Long.numberOfTrailingZeros(b.getBlackKingBitBoard())));
 
@@ -1076,16 +1068,33 @@ class MoveGenerator {
 
     private long getBlackMovement() {
         Long ans = 0L;
-        for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
-                | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getBlackRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case BLACK_ROOK -> ans |= getRookMovement(square);
-                case BLACK_KNIGHT -> ans |= getKnightMovement(square);
-                case BLACK_BISHOP -> ans |= getBishopMovement(square);
-                case BLACK_QUEEN -> ans |= getQueenMovement(square);
+            ans |= getRookMovement(square);
             }
+        for (long temp = b.getBlackBishopBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            ans |= getBishopMovement(square);
         }
+        for (long temp = b.getBlackKnightBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            ans |= getKnightMovement(square);
+        }
+        for (long temp = b.getBlackQueenBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            ans |= getQueenMovement(square);
+        }
+//
+//        for (long temp = (b.getBlackRookBitBoard() | b.getBlackBishopBitBoard() | b.getBlackKnightBitBoard()
+//                | b.getBlackQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+//            int square = Long.numberOfTrailingZeros(temp);
+//            switch (b.pieceAtSquare(square)) {
+//                case BLACK_ROOK -> ans |= getRookMovement(square);
+//                case BLACK_KNIGHT -> ans |= getKnightMovement(square);
+//                case BLACK_BISHOP -> ans |= getBishopMovement(square);
+//                case BLACK_QUEEN -> ans |= getQueenMovement(square);
+//            }
+//        }
         ans |= getKingMovement(Long.numberOfTrailingZeros(b.getBlackKingBitBoard()));
         return ans;
     }
@@ -1093,16 +1102,33 @@ class MoveGenerator {
 
     private long getWhiteMovement() {
         Long ans = 0L;
-        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
-                | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+
+        for (long temp = b.getWhiteRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
-            switch (b.pieceAtSquare(square)) {
-                case WHITE_ROOK -> ans |= getRookMovement(square);
-                case WHITE_KNIGHT -> ans |= getKnightMovement(square);
-                case WHITE_BISHOP -> ans |= getBishopMovement(square);
-                case WHITE_QUEEN -> ans |= getQueenMovement(square);
-            }
+            ans |= getRookMovement(square);
         }
+        for (long temp = b.getWhiteBishopBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            ans |= getBishopMovement(square);
+        }
+        for (long temp = b.getWhiteKnightBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            ans |= getKnightMovement(square);
+        }
+        for (long temp = b.getWhiteQueenBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+            int square = Long.numberOfTrailingZeros(temp);
+            ans |= getQueenMovement(square);
+        }
+//        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
+//                | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+//            int square = Long.numberOfTrailingZeros(temp);
+//            switch (b.pieceAtSquare(square)) {
+//                case WHITE_ROOK -> ans |= getRookMovement(square);
+//                case WHITE_KNIGHT -> ans |= getKnightMovement(square);
+//                case WHITE_BISHOP -> ans |= getBishopMovement(square);
+//                case WHITE_QUEEN -> ans |= getQueenMovement(square);
+//            }
+//        }
         ans |= getKingMovement(Long.numberOfTrailingZeros(b.getWhiteKingBitBoard()));
         return ans;
     }
