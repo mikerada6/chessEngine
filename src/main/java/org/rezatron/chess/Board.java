@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.constants.ChessPiece;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -690,5 +691,31 @@ class Board {
         return Long.numberOfTrailingZeros(bitboards[blackKingBitBoard]);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Board board = (Board) o;
+
+        if (blackKingSideCastle != board.blackKingSideCastle) return false;
+        if (blackQueenSideCastle != board.blackQueenSideCastle) return false;
+        if (whiteKingSideCastle != board.whiteKingSideCastle) return false;
+        if (whiteQueenSideCastle != board.whiteQueenSideCastle) return false;
+        if (isWhitesTurn != board.isWhitesTurn) return false;
+        if (!Arrays.equals(bitboards, board.bitboards)) return false;
+        return enPassantTarget.equals(board.enPassantTarget);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(bitboards);
+        result = 31 * result + enPassantTarget.hashCode();
+        result = 31 * result + (blackKingSideCastle ? 1 : 0);
+        result = 31 * result + (blackQueenSideCastle ? 1 : 0);
+        result = 31 * result + (whiteKingSideCastle ? 1 : 0);
+        result = 31 * result + (whiteQueenSideCastle ? 1 : 0);
+        result = 31 * result + (isWhitesTurn ? 1 : 0);
+        return result;
+    }
 }

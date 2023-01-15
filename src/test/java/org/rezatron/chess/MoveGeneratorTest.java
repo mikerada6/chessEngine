@@ -211,24 +211,4 @@ class MoveGeneratorTest extends TestCase {
 
     }
 
-
-    public void testLog2OfPowerOfTwo() {
-
-        MoveGenerator mg = new MoveGenerator();
-        for (int i = 0; i < 63; i++) {
-            log.info("i: {}",
-                    i);
-            int temp = MoveGenerator.bitScanForwardDeBruijn64(1L << i);
-            assertEquals(i,
-                    temp);
-        }
-
-        Board b = new Board();
-
-        for (long temp = (b.getWhiteRookBitBoard() | b.getWhiteBishopBitBoard() | b.getWhiteKnightBitBoard()
-                | b.getWhiteQueenBitBoard()); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
-            System.out.println(temp);
-        }
-    }
-
 }

@@ -37,10 +37,7 @@ class MoveGenerator {
      * "Using de Bruijn Sequences to Index a 1 in a Computer Word"
      * @precondition bb != 0
      */
-    static public int bitScanForwardDeBruijn64(long bb) {
-        int idx = (int) (((bb & -bb) * deBruijn) >>> 58);
-        return magicTable[idx];
-    }
+
 
     public List<Move> getMoves() {
         List<Move> moves;
@@ -665,21 +662,32 @@ class MoveGenerator {
         List<Move> moves = new LinkedList<>();
         long movesBitBoard = getRookMovement(square);
 
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
+        movesBitBoard =removeLikeSquares(movesBitBoard);
+        long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
+        long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
+
+        for (; quiteMoves != 0; quiteMoves -= 1L << Long.numberOfTrailingZeros(quiteMoves)) {
+            int i = Long.numberOfTrailingZeros(quiteMoves);
             Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a rook movement from {} to {} - {}",
+            move = new Move(square,
+                    i,
+                    QUITE_MOVE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
+                    square,
+                    i,
+                    move);
+
+            moves.add(move);
+        }
+        for (; captureMoves != 0; captureMoves -= 1L << Long.numberOfTrailingZeros(captureMoves)) {
+            int i = Long.numberOfTrailingZeros(captureMoves);
+            Move move;
+            move = new Move(square,
+                    i,
+                    CAPTURE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
                     square,
                     i,
                     move);
@@ -716,22 +724,33 @@ class MoveGenerator {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
         long movesBitBoard = getKnightMovement(square);
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+        movesBitBoard =removeLikeSquares(movesBitBoard);
 
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
+        long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
+        long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
+
+        for (; quiteMoves != 0; quiteMoves -= 1L << Long.numberOfTrailingZeros(quiteMoves)) {
+            int i = Long.numberOfTrailingZeros(quiteMoves);
             Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a knight movement from {} to {} - {}",
+            move = new Move(square,
+                    i,
+                    QUITE_MOVE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
+                    square,
+                    i,
+                    move);
+
+            moves.add(move);
+        }
+        for (; captureMoves != 0; captureMoves -= 1L << Long.numberOfTrailingZeros(captureMoves)) {
+            int i = Long.numberOfTrailingZeros(captureMoves);
+            Move move;
+            move = new Move(square,
+                    i,
+                    CAPTURE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
                     square,
                     i,
                     move);
@@ -765,21 +784,32 @@ class MoveGenerator {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
         long movesBitBoard = getBishopMovement(square);
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+        movesBitBoard =removeLikeSquares(movesBitBoard);
 
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
+        long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
+        long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
+
+        for (; quiteMoves != 0; quiteMoves -= 1L << Long.numberOfTrailingZeros(quiteMoves)) {
+            int i = Long.numberOfTrailingZeros(quiteMoves);
             Move move;
-            if (b.isSquareEmpty(i)) {
                 move = new Move(square,
                         i,
                         QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
+
+            log.trace("adding a bishop movement from {} to {} - {}",
+                    square,
+                    i,
+                    move);
+
+            moves.add(move);
+        }
+        for (; captureMoves != 0; captureMoves -= 1L << Long.numberOfTrailingZeros(captureMoves)) {
+            int i = Long.numberOfTrailingZeros(captureMoves);
+            Move move;
+            move = new Move(square,
+                    i,
+                    CAPTURE_FLAG);
+
             log.trace("adding a bishop movement from {} to {} - {}",
                     square,
                     i,
@@ -813,28 +843,46 @@ class MoveGenerator {
         return (one & dMask) | (two & adMask);
     }
 
+    private long removeLikeSquares(long movesBitBoard)
+    {
+        if(b.isWhitesTurn())
+            return movesBitBoard & (b.getBlackBitBoard() | b.getEmptyBitBoard());
+        return movesBitBoard & (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+    }
+
     private List<Move> getQueenMoves(int square) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
 
         long movesBitBoard = getQueenMovement(square);
 
-        if (b.isWhitesTurn()) movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
-        else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
+        movesBitBoard =removeLikeSquares(movesBitBoard);
 
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
+        long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
+        long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
+
+        for (; quiteMoves != 0; quiteMoves -= 1L << Long.numberOfTrailingZeros(quiteMoves)) {
+            int i = Long.numberOfTrailingZeros(quiteMoves);
             Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a queen movement from {} to {} - {}",
+            move = new Move(square,
+                    i,
+                    QUITE_MOVE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
+                    square,
+                    i,
+                    move);
+
+            moves.add(move);
+        }
+        for (; captureMoves != 0; captureMoves -= 1L << Long.numberOfTrailingZeros(captureMoves)) {
+            int i = Long.numberOfTrailingZeros(captureMoves);
+            Move move;
+            move = new Move(square,
+                    i,
+                    CAPTURE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
                     square,
                     i,
                     move);
@@ -860,19 +908,31 @@ class MoveGenerator {
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
         else movesBitBoard &= (b.getWhiteBitBoard() | b.getEmptyBitBoard());
 
-        for (; movesBitBoard != 0; movesBitBoard -= 1L << Long.numberOfTrailingZeros(movesBitBoard)) {
-            int i = Long.numberOfTrailingZeros(movesBitBoard);
+        long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
+        long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
+
+        for (; quiteMoves != 0; quiteMoves -= 1L << Long.numberOfTrailingZeros(quiteMoves)) {
+            int i = Long.numberOfTrailingZeros(quiteMoves);
             Move move;
-            if (b.isSquareEmpty(i)) {
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-            } else {
-                move = new Move(square,
-                        i,
-                        CAPTURE_FLAG);
-            }
-            log.trace("adding a king movement from {} to {} - {}",
+            move = new Move(square,
+                    i,
+                    QUITE_MOVE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
+                    square,
+                    i,
+                    move);
+
+            moves.add(move);
+        }
+        for (; captureMoves != 0; captureMoves -= 1L << Long.numberOfTrailingZeros(captureMoves)) {
+            int i = Long.numberOfTrailingZeros(captureMoves);
+            Move move;
+            move = new Move(square,
+                    i,
+                    CAPTURE_FLAG);
+
+            log.trace("adding a bishop movement from {} to {} - {}",
                     square,
                     i,
                     move);
@@ -934,34 +994,25 @@ class MoveGenerator {
 
             if ((moveBitBoard & xRayMoves) != 0) {
                 b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
+                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
                     log.trace("{} is an illegal move.",
                             m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else {
+                }else {
                     legalMoves.add(m);
                 }
                 b.undo();
             } else if (m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
                 b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
+                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
                     log.trace("{} is an illegal move.",
                             m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else {
+                }  else {
                     legalMoves.add(m);
                 }
                 b.undo();
             } else if (m.getFrom() == king) {
                 b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
                     log.trace("{} is an illegal move.",
                             m);
                 } else {
@@ -970,10 +1021,7 @@ class MoveGenerator {
                 b.undo();
             } else if (isChecked) {
                 b.move(m);
-                if (b.isWhitesTurn() && isBlackChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
-                } else if (!b.isWhitesTurn() && isWhiteChecked()) {
+                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
                     log.trace("{} is an illegal move.",
                             m);
                 } else {
@@ -1007,7 +1055,6 @@ class MoveGenerator {
         long temp4 = (kingSquare & getKingMovement(b.getBlackKingSquare()));
         long attacks =
                 (kingSquare & pawnAttackRight(false)) | (kingSquare & pawnAttackLeft(false)) | temp1 | temp2 | temp3 | temp4;
-//    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
         return attacks != 0;
     }
 
@@ -1024,7 +1071,6 @@ class MoveGenerator {
         long temp4 = (kingSquare & getKingMovement(b.getWhiteKingSquare()));
         long attacks =
                 (kingSquare & pawnAttackRight(true)) | (kingSquare & pawnAttackLeft(true)) | temp1 | temp2 | temp3 | temp4;
-//    long attacks = pawnAttackRight( true ) | pawnAttackLeft( true ) | getWhiteMovement( );
         return attacks != 0;
     }
 
@@ -1065,6 +1111,7 @@ class MoveGenerator {
         return (squares[square] & attack) != 0;
     }
 
+    //TODO make this not require attacks
     private boolean isAttackedBy(long squares, long attack) {
         return (squares & attack) != 0;
     }
