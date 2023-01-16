@@ -26,19 +26,6 @@ class MoveGenerator {
         this.b = new Board();
     }
 
-    /**
-     * bitScanForward
-     *
-     * @param bb bitboard to scan
-     * @return index (0..63) of least significant one bit
-     * @author Charles E. Leiserson
-     * Harald Prokop
-     * Keith H. Randall
-     * "Using de Bruijn Sequences to Index a 1 in a Computer Word"
-     * @precondition bb != 0
-     */
-
-
     public List<Move> getMoves() {
         List<Move> moves;
         if (b.isWhitesTurn()) moves = getWhiteMoves();
@@ -89,10 +76,10 @@ class MoveGenerator {
             Move move = new Move(to - 8,
                     to,
                     QUITE_MOVE_FLAG);
-            log.trace("Making a white pawn push one from {} to {} - {}",
-                    to - 8,
-                    to,
-                    move);
+//            log.trace("Making a white pawn push one from {} to {} - {}",
+//                    to - 8,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -101,10 +88,10 @@ class MoveGenerator {
             Move move = new Move(to - 16,
                     to,
                     MoveFlags.DOUBLE_PAWN_PUSH_FLAG);
-            log.trace("Making a white pawn push two from {} to {} - {}",
-                    to - 16,
-                    to,
-                    move);
+//            log.trace("Making a white pawn push two from {} to {} - {}",
+//                    to - 16,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -113,10 +100,10 @@ class MoveGenerator {
             Move move = new Move(to - 7,
                     to,
                     MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack left white pawn push from {} to {} - {}",
-                    to - 7,
-                    to,
-                    move);
+//            log.trace("Making an attack left white pawn push from {} to {} - {}",
+//                    to - 7,
+//                    to,
+//                    move);
             moves.add(move);
         }
         for (long temp = whitePawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
@@ -124,10 +111,10 @@ class MoveGenerator {
             Move move = new Move(to - 9,
                     to,
                     MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack right  white pawn push from {} to {} - {}",
-                    to - 9,
-                    to,
-                    move);
+//            log.trace("Making an attack right  white pawn push from {} to {} - {}",
+//                    to - 9,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -146,22 +133,22 @@ class MoveGenerator {
             Move moveQueen = new Move(from,
                     to,
                     MoveFlags.QUEEN_PROMOTION_FLAG);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveRook);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveKnight);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveBishop);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveQueen);
             moves.add(moveRook);
             moves.add(moveKnight);
             moves.add(moveBishop);
@@ -183,22 +170,22 @@ class MoveGenerator {
             Move moveQueen = new Move(from,
                     to,
                     MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveRook);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveKnight);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveBishop);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveQueen);
 
             moves.add(moveRook);
             moves.add(moveKnight);
@@ -221,22 +208,22 @@ class MoveGenerator {
             Move moveQueen = new Move(from,
                     to,
                     MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveRook);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveKnight);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveBishop);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveQueen);
             moves.add(moveRook);
             moves.add(moveKnight);
             moves.add(moveBishop);
@@ -250,10 +237,10 @@ class MoveGenerator {
             Move move = new Move(from,
                     to,
                     MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant left from {} to {} - {}",
-                    from,
-                    to,
-                    move);
+//            log.trace("Making an enPassant left from {} to {} - {}",
+//                    from,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -264,16 +251,16 @@ class MoveGenerator {
             Move move = new Move(from,
                     to,
                     MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant right from {} to {} - {}",
-                    from,
-                    to,
-                    move);
+//            log.trace("Making an enPassant right from {} to {} - {}",
+//                    from,
+//                    to,
+//                    move);
             moves.add(move);
         }
         stopwatch.stop(); // optional
 
-        log.debug("white pawn movement took : {}",
-                stopwatch);
+//        log.debug("white pawn movement took : {}",
+//                stopwatch);
 
         return moves;
     }
@@ -308,10 +295,10 @@ class MoveGenerator {
             Move move = new Move(to + 8,
                     to,
                     QUITE_MOVE_FLAG);
-            log.trace("Making a white pawn push one from {} to {} - {}",
-                    to + 8,
-                    to,
-                    move);
+//            log.trace("Making a white pawn push one from {} to {} - {}",
+//                    to + 8,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -320,10 +307,10 @@ class MoveGenerator {
             Move move = new Move(to + 16,
                     to,
                     MoveFlags.DOUBLE_PAWN_PUSH_FLAG);
-            log.trace("Making a white pawn push two from {} to {} - {}",
-                    to + 16,
-                    to,
-                    move);
+//            log.trace("Making a white pawn push two from {} to {} - {}",
+//                    to + 16,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -332,10 +319,10 @@ class MoveGenerator {
             Move move = new Move(to + 7,
                     to,
                     MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack left white pawn push from {} to {} - {}",
-                    to + 7,
-                    to,
-                    move);
+//            log.trace("Making an attack left white pawn push from {} to {} - {}",
+//                    to + 7,
+//                    to,
+//                    move);
             moves.add(move);
         }
         for (long temp = blackPawnAttackRightNormal; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
@@ -343,10 +330,10 @@ class MoveGenerator {
             Move move = new Move(to + 9,
                     to,
                     MoveFlags.CAPTURE_FLAG);
-            log.trace("Making an attack right  white pawn push from {} to {} - {}",
-                    to + 9,
-                    to,
-                    move);
+//            log.trace("Making an attack right  white pawn push from {} to {} - {}",
+//                    to + 9,
+//                    to,
+//                    move);
             moves.add(move);
         }
         for (long temp = promoteMove; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
@@ -364,22 +351,22 @@ class MoveGenerator {
             Move moveQueen = new Move(from,
                     to,
                     MoveFlags.QUEEN_PROMOTION_FLAG);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion move  from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveRook);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveKnight);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveBishop);
+//            log.trace("Making an promotion move  from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveQueen);
             moves.add(moveRook);
             moves.add(moveKnight);
             moves.add(moveBishop);
@@ -401,22 +388,22 @@ class MoveGenerator {
             Move moveQueen = new Move(from,
                     to,
                     MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveRook);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveKnight);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveBishop);
+//            log.trace("Making an promotion attack left white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveQueen);
 
             moves.add(moveRook);
             moves.add(moveKnight);
@@ -439,22 +426,22 @@ class MoveGenerator {
             Move moveQueen = new Move(from,
                     to,
                     MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveRook);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveKnight);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveBishop);
-            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
-                    from,
-                    to,
-                    moveQueen);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveRook);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveKnight);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveBishop);
+//            log.trace("Making an promotion attack right white pawn push from {} to {} - {}",
+//                    from,
+//                    to,
+//                    moveQueen);
             moves.add(moveRook);
             moves.add(moveKnight);
             moves.add(moveBishop);
@@ -468,10 +455,10 @@ class MoveGenerator {
             Move move = new Move(from,
                     to,
                     MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant left from {} to {} - {}",
-                    from,
-                    to,
-                    move);
+//            log.trace("Making an enPassant left from {} to {} - {}",
+//                    from,
+//                    to,
+//                    move);
             moves.add(move);
         }
 
@@ -482,10 +469,10 @@ class MoveGenerator {
             Move move = new Move(from,
                     to,
                     MoveFlags.EP_CAPTURE_FLAG);
-            log.trace("Making an enPassant right from {} to {} - {}",
-                    from,
-                    to,
-                    move);
+//            log.trace("Making an enPassant right from {} to {} - {}",
+//                    from,
+//                    to,
+//                    move);
             moves.add(move);
         }
         stopwatch.stop(); // optional
@@ -547,26 +534,26 @@ class MoveGenerator {
         for (long temp = b.getWhiteRookBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getRookMoves((square)));
-            log.trace("After ROOK: {}",
-                    moves);
+//            log.trace("After ROOK: {}",
+//                    moves);
         }
         for (long temp = b.getWhiteBishopBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getBishopMoves((square)));
-            log.trace("After BISHOP: {}",
-                    moves);
+//            log.trace("After BISHOP: {}",
+//                    moves);
         }
         for (long temp = b.getWhiteKnightBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getKnightMoves((square)));
-            log.trace("After KNIGHT: {}",
-                    moves);
+//            log.trace("After KNIGHT: {}",
+//                    moves);
         }
         for (long temp = b.getWhiteQueenBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getQueenMoves((square)));
-            log.trace("After QUEEN: {}",
-                    moves);
+//            log.trace("After QUEEN: {}",
+//                    moves);
         }
 
         moves.addAll(getKingMoves(Long.numberOfTrailingZeros(b.getWhiteKingBitBoard())));
@@ -590,8 +577,8 @@ class MoveGenerator {
 
         stopwatch.stop(); // optional
 
-        log.debug("white non pawn movement took : {}",
-                stopwatch);
+//        log.debug("white non pawn movement took : {}",
+//                stopwatch);
         return moves;
     }
 
@@ -601,26 +588,26 @@ class MoveGenerator {
         for (long temp = b.getBlackRookBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getRookMoves((square)));
-            log.trace("After ROOK: {}",
-                    moves);
+//            log.trace("After ROOK: {}",
+//                    moves);
         }
         for (long temp = b.getBlackBishopBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getBishopMoves((square)));
-            log.trace("After BISHOP: {}",
-                    moves);
+//            log.trace("After BISHOP: {}",
+//                    moves);
         }
         for (long temp = b.getBlackKnightBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getKnightMoves((square)));
-            log.trace("After KNIGHT: {}",
-                    moves);
+//            log.trace("After KNIGHT: {}",
+//                    moves);
         }
         for (long temp = b.getBlackQueenBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getQueenMoves((square)));
-            log.trace("After QUEEN: {}",
-                    moves);
+//            log.trace("After QUEEN: {}",
+//                    moves);
         }
         moves.addAll(getKingMoves(Long.numberOfTrailingZeros(b.getBlackKingBitBoard())));
 
@@ -665,10 +652,10 @@ class MoveGenerator {
                     i,
                     QUITE_MOVE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -679,17 +666,17 @@ class MoveGenerator {
                     i,
                     CAPTURE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
         stopwatch.stop(); // optional
-
-        log.debug("rook movement took : {}",
-                stopwatch);
+//
+//        log.debug("rook movement took : {}",
+//                stopwatch);
         return moves;
     }
 
@@ -728,10 +715,10 @@ class MoveGenerator {
                     i,
                     QUITE_MOVE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -742,17 +729,17 @@ class MoveGenerator {
                     i,
                     CAPTURE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
         stopwatch.stop(); // optional
 
-        log.debug("knight movement took : {}",
-                stopwatch);
+//        log.debug("knight movement took : {}",
+//                stopwatch);
         return moves;
     }
 
@@ -784,14 +771,14 @@ class MoveGenerator {
         for (; quiteMoves != 0; quiteMoves -= 1L << Long.numberOfTrailingZeros(quiteMoves)) {
             int i = Long.numberOfTrailingZeros(quiteMoves);
             Move move;
-                move = new Move(square,
-                        i,
-                        QUITE_MOVE_FLAG);
-
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
+            move = new Move(square,
                     i,
-                    move);
+                    QUITE_MOVE_FLAG);
+
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -802,10 +789,10 @@ class MoveGenerator {
                     i,
                     CAPTURE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -860,10 +847,10 @@ class MoveGenerator {
                     i,
                     QUITE_MOVE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -874,10 +861,10 @@ class MoveGenerator {
                     i,
                     CAPTURE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -910,10 +897,10 @@ class MoveGenerator {
                     i,
                     QUITE_MOVE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -924,10 +911,10 @@ class MoveGenerator {
                     i,
                     CAPTURE_FLAG);
 
-            log.trace("adding a bishop movement from {} to {} - {}",
-                    square,
-                    i,
-                    move);
+//            log.trace("adding a bishop movement from {} to {} - {}",
+//                    square,
+//                    i,
+//                    move);
 
             moves.add(move);
         }
@@ -987,8 +974,8 @@ class MoveGenerator {
             if ((moveBitBoard & xRayMoves) != 0) {
                 b.move(m);
                 if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
+//                    log.trace("{} is an illegal move.",
+//                            m);
                 }else {
                     legalMoves.add(m);
                 }
@@ -996,8 +983,8 @@ class MoveGenerator {
             } else if (m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
                 b.move(m);
                 if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
+//                    log.trace("{} is an illegal move.",
+//                            m);
                 }  else {
                     legalMoves.add(m);
                 }
@@ -1005,8 +992,8 @@ class MoveGenerator {
             } else if (m.getFrom() == king) {
                 b.move(m);
                 if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
+//                    log.trace("{} is an illegal move.",
+//                            m);
                 } else {
                     legalMoves.add(m);
                 }
@@ -1014,23 +1001,23 @@ class MoveGenerator {
             } else if (isChecked) {
                 b.move(m);
                 if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
-                    log.trace("{} is an illegal move.",
-                            m);
+//                    log.trace("{} is an illegal move.",
+//                            m);
                 } else {
                     legalMoves.add(m);
                 }
                 b.undo();
             } else {
-                log.trace("Move {} is not checked on board {}",
-                        m,
-                        b);
+//                log.trace("Move {} is not checked on board {}",
+//                        m,
+//                        b);
                 legalMoves.add(m);
             }
         }
         stopwatch.stop(); // optional
 
-        log.debug("legalizeMoves took : {}",
-                stopwatch);
+//        log.debug("legalizeMoves took : {}",
+//                stopwatch);
         return legalMoves;
     }
 

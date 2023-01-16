@@ -289,16 +289,16 @@ class Board {
     }
 
     public void move(Move move) {
+        moveCount++;
         int from = move.getFrom();
         int to = move.getTo();
         enPassantTarget = "-";
-        ChessPiece attackedPiece = pieceAtSquare(to);
         int flag = move.getFlags();
-        log.trace("Move {} is a move from {} to {} with flags{}.",
-                move,
-                from,
-                to,
-                flag);
+//        log.trace("Move {} is a move from {} to {} with flags{}.",
+//                move,
+//                from,
+//                to,
+//                flag);
         ChessPiece fromPiece = pieceAtSquare(from);
         ChessPiece toPiece = pieceAtSquare(to);
 
@@ -319,33 +319,16 @@ class Board {
             fortyMoveCount = 0;
             if (flag == ROOK_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                if (isWhitesTurn) {
-                    bitboards[whiteRookBitBoard] += squares[to];
-                } else {
-                    bitboards[blackRookBitBoard] += squares[to];
-                }
+                bitboards[fromPiece.getBitBoardIndex()+1] += squares[to];
             } else if (flag == KNIGHT_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                if (isWhitesTurn) {
-                    bitboards[whiteKnightBitBoard] += squares[to];
-                } else {
-                    bitboards[blackKnightBitBoard] += squares[to];
-                }
+                bitboards[fromPiece.getBitBoardIndex()+2] += squares[to];
             } else if (flag == BISHOP_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                if (isWhitesTurn) {
-                    bitboards[whiteBishopBitBoard] += squares[to];
-                } else {
-                    bitboards[blackBishopBitBoard] += squares[to];
-                }
+                bitboards[fromPiece.getBitBoardIndex()+3] += squares[to];
             } else if (flag == QUEEN_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                if (isWhitesTurn) {
-                    bitboards[whiteQueenBitBoard] += squares[to];
-                } else {
-                    bitboards[blackQueenBitBoard] += squares[to];
-                }
-
+                bitboards[fromPiece.getBitBoardIndex()+4] += squares[to];
             } else if (isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
                 bitboards[blackPawnBitBoard] -= squares[to - 8];
             } else if (!isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
@@ -369,32 +352,16 @@ class Board {
             bitboards[blackRookBitBoard] += (squares[59] - squares[56]);
         } else if (flag == ROOK_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            if (isWhitesTurn) {
-                bitboards[whiteRookBitBoard] += squares[to];
-            } else {
-                bitboards[blackRookBitBoard] += squares[to];
-            }
+            bitboards[fromPiece.getBitBoardIndex()+1] += squares[to];
         } else if (flag == KNIGHT_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            if (isWhitesTurn) {
-                bitboards[whiteKnightBitBoard] += squares[to];
-            } else {
-                bitboards[blackKnightBitBoard] += squares[to];
-            }
+            bitboards[fromPiece.getBitBoardIndex()+2] += squares[to];
         } else if (flag == BISHOP_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            if (isWhitesTurn) {
-                bitboards[whiteBishopBitBoard] += squares[to];
-            } else {
-                bitboards[blackBishopBitBoard] += squares[to];
-            }
+            bitboards[fromPiece.getBitBoardIndex()+3] += squares[to];
         } else if (flag == QUEEN_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            if (isWhitesTurn) {
-                bitboards[whiteQueenBitBoard] += squares[to];
-            } else {
-                bitboards[blackQueenBitBoard] += squares[to];
-            }
+            bitboards[fromPiece.getBitBoardIndex()+4] += squares[to];
         }
 
         //set castle flags
@@ -422,7 +389,7 @@ class Board {
 
         isWhitesTurn = !isWhitesTurn;
         updateHistory();
-        moveCount++;
+
 
         updateGlobalBitBoards();
     }
@@ -573,19 +540,20 @@ class Board {
     }
 
     public ChessPiece pieceAtSquare(int square) {
-//        if ((bitboards[emptyBitBoard] & squares[square]) != 0) return ChessPiece.EMPTY;
-        if ((bitboards[whitePawnBitBoard] & squares[square]) != 0) return ChessPiece.WHITE_PAWN;
-        if ((bitboards[blackPawnBitBoard] & squares[square]) != 0) return ChessPiece.BLACK_PAWN;
-        if ((bitboards[whiteQueenBitBoard] & squares[square]) != 0) return ChessPiece.WHITE_QUEEN;
-        if ((bitboards[blackQueenBitBoard] & squares[square]) != 0) return ChessPiece.BLACK_QUEEN;
-        if ((bitboards[whiteRookBitBoard] & squares[square]) != 0) return ChessPiece.WHITE_ROOK;
-        if ((bitboards[blackRookBitBoard] & squares[square]) != 0) return ChessPiece.BLACK_ROOK;
-        if ((bitboards[whiteBishopBitBoard] & squares[square]) != 0) return ChessPiece.WHITE_BISHOP;
-        if ((bitboards[blackBishopBitBoard] & squares[square]) != 0) return ChessPiece.BLACK_BISHOP;
-        if ((bitboards[whiteKnightBitBoard] & squares[square]) != 0) return ChessPiece.WHITE_KNIGHT;
-        if ((bitboards[blackKnightBitBoard] & squares[square]) != 0) return ChessPiece.BLACK_KNIGHT;
-        if ((bitboards[whiteKingBitBoard] & squares[square]) != 0) return ChessPiece.WHITE_KING;
-        if ((bitboards[blackKingBitBoard] & squares[square]) != 0) return ChessPiece.BLACK_KING;
+        long i = squares[square];
+        if ((bitboards[occupiedBitBoard] & i) == 0) return ChessPiece.EMPTY;
+        if ((bitboards[whitePawnBitBoard] & i) != 0) return ChessPiece.WHITE_PAWN;
+        if ((bitboards[blackPawnBitBoard] & i) != 0) return ChessPiece.BLACK_PAWN;
+        if ((bitboards[whiteQueenBitBoard] & i) != 0) return ChessPiece.WHITE_QUEEN;
+        if ((bitboards[blackQueenBitBoard] & i) != 0) return ChessPiece.BLACK_QUEEN;
+        if ((bitboards[whiteRookBitBoard] & i) != 0) return ChessPiece.WHITE_ROOK;
+        if ((bitboards[blackRookBitBoard] & i) != 0) return ChessPiece.BLACK_ROOK;
+        if ((bitboards[whiteBishopBitBoard] & i) != 0) return ChessPiece.WHITE_BISHOP;
+        if ((bitboards[blackBishopBitBoard] & i) != 0) return ChessPiece.BLACK_BISHOP;
+        if ((bitboards[whiteKnightBitBoard] & i) != 0) return ChessPiece.WHITE_KNIGHT;
+        if ((bitboards[blackKnightBitBoard] & i) != 0) return ChessPiece.BLACK_KNIGHT;
+        if ((bitboards[whiteKingBitBoard] & i) != 0) return ChessPiece.WHITE_KING;
+        if ((bitboards[blackKingBitBoard] & i) != 0) return ChessPiece.BLACK_KING;
         return ChessPiece.EMPTY;
     }
 
