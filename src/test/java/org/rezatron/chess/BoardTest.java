@@ -5,8 +5,7 @@ import junit.framework.TestCase;
 import java.util.List;
 
 import static org.rezatron.chess.constants.ChessPiece.*;
-import static org.rezatron.chess.constants.MoveFlags.DOUBLE_PAWN_PUSH_FLAG;
-import static org.rezatron.chess.constants.MoveFlags.QUITE_MOVE_FLAG;
+import static org.rezatron.chess.constants.MoveFlags.*;
 
 public
 class BoardTest extends TestCase {
@@ -454,5 +453,135 @@ class BoardTest extends TestCase {
         assertEquals(before,
                 b.toString());
     }
+
+    public void testPawnRookPromotionCaptureWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteRookBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,57,ROOK_PROMOTION_CAPTURE_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteRookBitBoard(),1L<<57);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),0);
+    }
+
+    public void testPawnKnightPromotionCaptureWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteKnightBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,57,KNIGHT_PROMOTION_CAPTURE_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteKnightBitBoard(),1L<<57);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),0);
+    }
+
+    public void testPawnBishopPromotionCaptureWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteBishopBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,57,BISHOP_PROMOTION_CAPTURE_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteBishopBitBoard(),1L<<57);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),0);
+    }
+
+    public void testPawnQueenPromotionCaptureWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteQueenBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,57,QUEEN_PROMOTION_CAPTURE_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteQueenBitBoard(),1L<<57);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),0);
+    }
+
+    public void testPawnRookPromotionWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteRookBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,56,ROOK_PROMOTION_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteRookBitBoard(),1L<<56);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+    }
+
+    public void testPawnKnightPromotionWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteKnightBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,56,KNIGHT_PROMOTION_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteKnightBitBoard(),1L<<56);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+    }
+
+    public void testPawnBishopPromotionWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteBishopBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,56,BISHOP_PROMOTION_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteBishopBitBoard(),1L<<56);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+    }
+
+    public void testPawnQueenPromotionWhite() {
+        Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");
+        String before = b.toString();
+        System.out.println(b);
+        assertEquals(b.getWhiteQueenBitBoard(),0);
+        assertEquals(b.getWhitePawnBitBoard(),1L<<48);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+
+        b.move(new Move(48,56,QUEEN_PROMOTION_FLAG));
+        System.out.println(b);
+
+        assertEquals(b.getWhiteQueenBitBoard(),1L<<56);
+        assertEquals(b.getWhitePawnBitBoard(),0);
+        assertEquals(b.getBlackRookBitBoard(),1L<<57);
+    }
+
+
 
 }

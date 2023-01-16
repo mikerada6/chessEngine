@@ -4,8 +4,11 @@ import com.google.common.base.Stopwatch;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.rezatron.chess.constants.MoveFlags;
+import org.rezatron.util.Perft;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.rezatron.util.Perft.perft;
 
@@ -14,12 +17,12 @@ public class PerftTest extends TestCase {
     private static final Logger log = LogManager.getLogger(PerftTest.class);
 
 //    public void testDivide1() {
-//        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//        Board b = new Board("8/Pk6/8/8/8/8/6Kp/8 w - - 0 1");
 //
 //        System.out.println(b);
-//        b.move(new  Move(12, 28,  MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(51, 35, MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(5, 33, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(48, 56,  MoveFlags.QUEEN_PROMOTION_FLAG));
+////        b.move(new  Move(51, 35, MoveFlags.QUITE_MOVE_FLAG));
+////        b.move(new  Move(5, 33, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(0, 8, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(12, 4, MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG));
 ////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
