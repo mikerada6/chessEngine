@@ -4,8 +4,8 @@ import com.google.common.base.Stopwatch;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.rezatron.chess.constants.MoveFlags;
-import org.rezatron.util.Perft;
+
+import java.util.ArrayList;
 
 import static org.rezatron.util.Perft.perft;
 
@@ -14,26 +14,53 @@ public class PerftTest extends TestCase {
     private static final Logger log = LogManager.getLogger(PerftTest.class);
 
 //    public void testDivide1() {
-//        Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ");
+//        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//
 //        System.out.println(b);
-//        b.move(new  Move(0, 1,  MoveFlags.QUITE_MOVE_FLAG));
-//        b.move(new  Move(23, 14, MoveFlags.CAPTURE_FLAG));
-////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
-////        b.move(new  Move(14, 22, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(12, 28,  MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(51, 35, MoveFlags.QUITE_MOVE_FLAG));
+//        b.move(new  Move(5, 33, MoveFlags.QUITE_MOVE_FLAG));
+////        b.move(new  Move(0, 8, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(12, 4, MoveFlags.QUEEN_PROMOTION_CAPTURE_FLAG));
 ////        b.move(new  Move(20, 12, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new  Move(5, 6, MoveFlags.QUITE_MOVE_FLAG));
 ////        b.move(new Move(60, 62, KING_CASTLE_FLAG));
 //
+//        MoveGenerator mg = new MoveGenerator(b);
 //        System.out.println(b);
+//        List<Move> moves = mg.getMoves();
+//        System.out.println(moves.size() +"\n"+mg.getMoves());
+//
 //        System.out.println(Perft.divide(b, 2));
 //    }
 
 //  public void testTest1(){
-//    Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//    Board b = new Board();
 //    log.info("fen: {}", b.getFEN());
-//    runPerftTest(119060324, b, 6);
+//    System.out.println(b);
+//    MoveGenerator mg = new MoveGenerator(b);
+//    System.out.println(mg.getMoves());
 //  }
+
+//    public void testTime() {
+//       9.182245858-9.868474142	2 STDEV
+
+//        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//        ArrayList<String> t = new ArrayList<>();
+//        for( int p = 0; p< 100; p++) {
+//            Stopwatch stopwatch = Stopwatch.createStarted();
+//            runPerftTest(119060324, b, 6);
+//            stopwatch.stop();
+//            t.add(stopwatch.toString());
+//        }
+//        for(String temp: t)
+//        {
+//            for(String x: temp.split(","))
+//                for(String y: x.split(" s"))
+//                    System.out.println(y);
+//        }
+//
+//    }
 
     public void runPerftTest(long expected, Board b, int depth) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -1582,6 +1609,38 @@ public class PerftTest extends TestCase {
         runPerftTest(140931, b, 5);
         runPerftTest(3151343, b, 6);
         runPerftTest(67820026, b, 7);
+    }
+
+    public void testPerft129() {
+        Board b = new Board("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
+        log.info("fen: {}", b.getFEN());
+        runPerftTest(14, b, 1);
+        runPerftTest(191, b, 2);
+        runPerftTest(2812, b, 3);
+        runPerftTest(43238, b, 4);
+        runPerftTest(674624, b, 5);
+        runPerftTest(11030083, b, 6);
+        runPerftTest(178633661, b, 7);
+    }
+
+    public void testPerft130_a() {
+        Board b = new Board("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+        log.info("fen: {}", b.getFEN());
+        runPerftTest(6, b, 1);
+        runPerftTest(264, b, 2);
+        runPerftTest(9467, b, 3);
+        runPerftTest(422333, b, 4);
+        runPerftTest(15833292, b, 5);
+    }
+
+    public void testPerft130_b() {
+        Board b = new Board("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1");
+        log.info("fen: {}", b.getFEN());
+        runPerftTest(6, b, 1);
+        runPerftTest(264, b, 2);
+        runPerftTest(9467, b, 3);
+        runPerftTest(422333, b, 4);
+        runPerftTest(15833292, b, 5);
     }
 
 }
