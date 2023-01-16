@@ -541,7 +541,7 @@ class Board {
 
     public ChessPiece pieceAtSquare(int square) {
         long i = squares[square];
-//        if ((bitboards[emptyBitBoard] & i) != 0) return ChessPiece.EMPTY;
+        if ((bitboards[occupiedBitBoard] & i) == 0) return ChessPiece.EMPTY;
         if ((bitboards[whitePawnBitBoard] & i) != 0) return ChessPiece.WHITE_PAWN;
         if ((bitboards[blackPawnBitBoard] & i) != 0) return ChessPiece.BLACK_PAWN;
         if ((bitboards[whiteQueenBitBoard] & i) != 0) return ChessPiece.WHITE_QUEEN;
