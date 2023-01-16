@@ -293,13 +293,12 @@ class Board {
         int from = move.getFrom();
         int to = move.getTo();
         enPassantTarget = "-";
-        ChessPiece attackedPiece = pieceAtSquare(to);
         int flag = move.getFlags();
-        log.trace("Move {} is a move from {} to {} with flags{}.",
-                move,
-                from,
-                to,
-                flag);
+//        log.trace("Move {} is a move from {} to {} with flags{}.",
+//                move,
+//                from,
+//                to,
+//                flag);
         ChessPiece fromPiece = pieceAtSquare(from);
         ChessPiece toPiece = pieceAtSquare(to);
 
