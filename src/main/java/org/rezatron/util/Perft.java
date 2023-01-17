@@ -7,6 +7,10 @@ import org.rezatron.chess.Move;
 import org.rezatron.chess.MoveGenerator;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+import static java.util.stream.Collectors.toList;
 
 public class Perft {
 
@@ -68,7 +72,7 @@ public class Perft {
     }
 
 
-    public static long perft(Board board, int depth) {
+    public static long perft(Board board, int depth, Executor executor) {
         MoveGenerator mg = new MoveGenerator(board);
         List<Move> moveList = mg.getMoves();
         if (depth == 1) {
@@ -76,13 +80,28 @@ public class Perft {
         }
         long nodes = 0;
         if (!moveList.isEmpty()) {
-            for (Move move : moveList) {
-                Board newBoard = new Board(board);
-                newBoard.move(move);
-                nodes += diveIn(newBoard, depth - 1);
-            }
+
+          List<CompletableFuture<Long>> futureNodes = moveList.stream()
+                                                              .map( m -> CompletableFuture.supplyAsync( () -> getNodeCount( board,
+                                                                                                                            m,
+                                                                                                                            depth ),
+                                                                                                        executor ) )
+                                                              .collect( toList() );
+          return futureNodes.stream().map( CompletableFuture::join ).reduce( Long.valueOf( 0 ),
+                                                                             Long::sum );
+//            for (Move move : moveList) {
+//                nodes += getNodeCount(board,move, depth);
+//            }
         }
 
         return nodes;
     }
+
+  private static long getNodeCount( Board board,
+                                    Move move,
+                                    int depth ){
+    Board newBoard = new Board(board);
+    newBoard.move(move);
+    return diveIn(newBoard, depth - 1);
+  }
 }

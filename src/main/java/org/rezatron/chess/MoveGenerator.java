@@ -947,9 +947,6 @@ class MoveGenerator {
             king = b.getBlackKingSquare();
             isChecked = isBlackChecked();
         }
-//    long rookXRayMoves = xrayRookAttacks(all, me, king);
-//    long bishopXRayMoves = xrayBishopAttacks(all, me, king);
-//    long xRayMoves = rookXRayMoves|bishopXRayMoves;
 
         long rookXRayMoves = getRookMovement(king);
         long bishopXRayMoves = getBishopMovement(king);
@@ -961,45 +958,17 @@ class MoveGenerator {
             long moveBitBoard = 1L << m.getFrom();
 
             if ((moveBitBoard & xRayMoves) != 0) {
-                Board newBoard = new Board(b);
-                newBoard.move(m);
-                MoveGenerator mg = new MoveGenerator(newBoard);
-                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
-//                    log.trace("{} is an illegal move.",
-//                            m);
-                } else {
-                    legalMoves.add(m);
-                }
+              testMove( legalMoves,
+                        m );
             } else if (m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
-                Board newBoard = new Board(b);
-                newBoard.move(m);
-                MoveGenerator mg = new MoveGenerator(newBoard);
-                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
-//                    log.trace("{} is an illegal move.",
-//                            m);
-                } else {
-                    legalMoves.add(m);
-                }
+              testMove( legalMoves,
+                         m );
             } else if (m.getFrom() == king) {
-                Board newBoard = new Board(b);
-                newBoard.move(m);
-                MoveGenerator mg = new MoveGenerator(newBoard);
-                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
-//                    log.trace("{} is an illegal move.",
-//                            m);
-                } else {
-                    legalMoves.add(m);
-                }
+              testMove( legalMoves,
+                        m );
             } else if (isChecked) {
-                Board newBoard = new Board(b);
-                newBoard.move(m);
-                MoveGenerator mg = new MoveGenerator(newBoard);
-                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
-//                    log.trace("{} is an illegal move.",
-//                            m);
-                } else {
-                    legalMoves.add(m);
-                }
+              testMove( legalMoves,
+                        m );
             } else {
 //                log.trace("Move {} is not checked on board {}",
 //                        m,
@@ -1014,19 +983,35 @@ class MoveGenerator {
         return legalMoves;
     }
 
-    public boolean isWhiteChecked() {
+  private
+  void testMove(List<Move> legalMoves, Move m) {
+    Board newBoard = new Board(b);
+    newBoard.move( m );
+    MoveGenerator mg = new MoveGenerator(newBoard);
+    if (isLegalPosition( newBoard,
+                         mg )) {
+        legalMoves.add( m );
+    }
+  }
+
+  private static
+  boolean isLegalPosition(Board newBoard, MoveGenerator mg) {
+    return newBoard.isWhitesTurn() ? !mg.isBlackChecked() : !mg.isWhiteChecked();
+  }
+
+  public boolean isWhiteChecked() {
         int dangerSquare = b.getWhiteKingSquare();
         long rookXRayMoves = getRookMovement(dangerSquare);
         long bishopXRayMoves = getBishopMovement(dangerSquare);
         long knightMoves = getKnightMovement(dangerSquare);
-        long kingSquare = 1L << b.getWhiteKingSquare();
+        long kingBitBoard = b.getWhiteKingBitBoard();
 
         long temp1 = rookXRayMoves & (b.getBlackRookBitBoard() | b.getBlackQueenBitBoard());
         long temp2 = bishopXRayMoves & (b.getBlackBishopBitBoard() | b.getBlackQueenBitBoard());
         long temp3 = knightMoves & (b.getBlackKnightBitBoard());
-        long temp4 = (kingSquare & getKingMovement(b.getBlackKingSquare()));
+        long temp4 = (kingBitBoard & getKingMovement(b.getBlackKingSquare()));
         long attacks =
-                (kingSquare & pawnAttackRight(false)) | (kingSquare & pawnAttackLeft(false)) | temp1 | temp2 | temp3 | temp4;
+                (kingBitBoard & pawnAttackRight(false)) | (kingBitBoard & pawnAttackLeft(false)) | temp1 | temp2 | temp3 | temp4;
         return attacks != 0;
     }
 
@@ -1035,14 +1020,14 @@ class MoveGenerator {
         long rookXRayMoves = getRookMovement(dangerSquare);
         long bishopXRayMoves = getBishopMovement(dangerSquare);
         long knightMoves = getKnightMovement(dangerSquare);
-        long kingSquare = 1L << b.getBlackKingSquare();
+      long kingBitBoard = b.getBlackKingBitBoard();
 
         long temp1 = rookXRayMoves & (b.getWhiteRookBitBoard() | b.getWhiteQueenBitBoard());
         long temp2 = bishopXRayMoves & (b.getWhiteBishopBitBoard() | b.getWhiteQueenBitBoard());
         long temp3 = knightMoves & (b.getWhiteKnightBitBoard());
-        long temp4 = (kingSquare & getKingMovement(b.getWhiteKingSquare()));
+        long temp4 = (kingBitBoard & getKingMovement(b.getWhiteKingSquare()));
         long attacks =
-                (kingSquare & pawnAttackRight(true)) | (kingSquare & pawnAttackLeft(true)) | temp1 | temp2 | temp3 | temp4;
+                (kingBitBoard & pawnAttackRight(true)) | (kingBitBoard & pawnAttackLeft(true)) | temp1 | temp2 | temp3 | temp4;
         return attacks != 0;
     }
 
