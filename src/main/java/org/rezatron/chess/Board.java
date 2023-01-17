@@ -14,13 +14,12 @@ class Board {
 
     private static final Logger log = LogManager.getLogger(Board.class);
     private final long[] bitboards = new long[16];
+    private final Board parentBoard;
     private String enPassantTarget;
     private boolean blackKingSideCastle, blackQueenSideCastle, whiteKingSideCastle, whiteQueenSideCastle;
     private long fortyMoveCount;
     private boolean isWhitesTurn;
     private int moveCount;
-
-    private final Board parentBoard;
 
 
     public Board() {
@@ -46,9 +45,8 @@ class Board {
 
         updateGlobalBitBoards();
         moveCount++;
-        parentBoard=null;
+        parentBoard = null;
     }
-
 
 
     public Board(Board b) {
@@ -75,11 +73,11 @@ class Board {
 
         fortyMoveCount = 0;
         isWhitesTurn = b.isWhitesTurn;
-        moveCount=b.getMoveCount();
+        moveCount = b.getMoveCount();
 
         updateGlobalBitBoards();
         moveCount++;
-        parentBoard=b;
+        parentBoard = b;
     }
 
     public Board(String fenString) {
@@ -156,7 +154,7 @@ class Board {
                     charIndex + 2);
         }
         moveCount++;
-        parentBoard=null;
+        parentBoard = null;
     }
 
     private void updateGlobalBitBoards() {

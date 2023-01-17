@@ -527,25 +527,25 @@ class MoveGenerator {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
 
-        for (long temp = b.getWhiteRookBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getWhiteRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getRookMoves((square)));
 //            log.trace("After ROOK: {}",
 //                    moves);
         }
-        for (long temp = b.getWhiteBishopBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getWhiteBishopBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getBishopMoves((square)));
 //            log.trace("After BISHOP: {}",
 //                    moves);
         }
-        for (long temp = b.getWhiteKnightBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getWhiteKnightBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getKnightMoves((square)));
 //            log.trace("After KNIGHT: {}",
 //                    moves);
         }
-        for (long temp = b.getWhiteQueenBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getWhiteQueenBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getQueenMoves((square)));
 //            log.trace("After QUEEN: {}",
@@ -581,25 +581,25 @@ class MoveGenerator {
     private List<Move> getBlackNonPawnMoves() {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
-        for (long temp = b.getBlackRookBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getBlackRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getRookMoves((square)));
 //            log.trace("After ROOK: {}",
 //                    moves);
         }
-        for (long temp = b.getBlackBishopBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getBlackBishopBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getBishopMoves((square)));
 //            log.trace("After BISHOP: {}",
 //                    moves);
         }
-        for (long temp = b.getBlackKnightBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getBlackKnightBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getKnightMoves((square)));
 //            log.trace("After KNIGHT: {}",
 //                    moves);
         }
-        for (long temp = b.getBlackQueenBitBoard() ; temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
+        for (long temp = b.getBlackQueenBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getQueenMoves((square)));
 //            log.trace("After QUEEN: {}",
@@ -637,7 +637,7 @@ class MoveGenerator {
         List<Move> moves = new LinkedList<>();
         long movesBitBoard = getRookMovement(square);
 
-        movesBitBoard =removeLikeSquares(movesBitBoard);
+        movesBitBoard = removeLikeSquares(movesBitBoard);
         long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
         long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
 
@@ -699,7 +699,7 @@ class MoveGenerator {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
         long movesBitBoard = getKnightMovement(square);
-        movesBitBoard =removeLikeSquares(movesBitBoard);
+        movesBitBoard = removeLikeSquares(movesBitBoard);
 
         long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
         long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
@@ -759,7 +759,7 @@ class MoveGenerator {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Move> moves = new LinkedList<>();
         long movesBitBoard = getBishopMovement(square);
-        movesBitBoard =removeLikeSquares(movesBitBoard);
+        movesBitBoard = removeLikeSquares(movesBitBoard);
 
         long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
         long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
@@ -818,9 +818,8 @@ class MoveGenerator {
         return (one & dMask) | (two & adMask);
     }
 
-    private long removeLikeSquares(long movesBitBoard)
-    {
-        if(b.isWhitesTurn())
+    private long removeLikeSquares(long movesBitBoard) {
+        if (b.isWhitesTurn())
             return movesBitBoard & (b.getBlackBitBoard() | b.getEmptyBitBoard());
         return movesBitBoard & (b.getWhiteBitBoard() | b.getEmptyBitBoard());
     }
@@ -831,7 +830,7 @@ class MoveGenerator {
 
         long movesBitBoard = getQueenMovement(square);
 
-        movesBitBoard =removeLikeSquares(movesBitBoard);
+        movesBitBoard = removeLikeSquares(movesBitBoard);
 
         long quiteMoves = movesBitBoard & b.getEmptyBitBoard();
         long captureMoves = movesBitBoard & b.getOccupiedBitBoard();
@@ -1052,7 +1051,7 @@ class MoveGenerator {
         for (long temp = b.getBlackRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             ans |= getRookMovement(square);
-            }
+        }
         for (long temp = b.getBlackBishopBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             ans |= getBishopMovement(square);

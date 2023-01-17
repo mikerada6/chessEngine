@@ -41,10 +41,8 @@ public class Perft {
         long[] count = new long[ary1.length];
         StringBuilder answer = new StringBuilder();
         int temp = 0;
-        if(depth <=1)
-        {
-            for(Move m: moveList)
-            {
+        if (depth <= 1) {
+            for (Move m : moveList) {
                 answer.append(m.toString()).append(": ").append(1).append("\n");
             }
             return answer.toString();
