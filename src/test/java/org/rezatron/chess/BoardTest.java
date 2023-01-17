@@ -414,45 +414,45 @@ class BoardTest extends TestCase {
         assertFalse(b.isWhitesTurn());
     }
 
-    public void testMove2() {
-        Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
-        String before = b.toString();
-        MoveGenerator mg = new MoveGenerator(b);
-        List<Move> moves = mg.getWhiteMoves();
-        b.move(new Move(11,
-                20,
-                QUITE_MOVE_FLAG));
-        String newBoard = """
-                   +---+---+---+---+---+---+---+---+
-                8  |*r*|   |   |   |*k*|   |   |*r*|
-                   +---+---+---+---+---+---+---+---+
-                7  |*p*|   |*p*|*p*|*q*|*p*|*b*|   |
-                   +---+---+---+---+---+---+---+---+
-                6  |*b*|*n*|   |   |*p*|*n*|*p*|   |
-                   +---+---+---+---+---+---+---+---+
-                5  |   |   |   |(P)|(N)|   |   |   |
-                   +---+---+---+---+---+---+---+---+
-                4  |   |*p*|   |   |(P)|   |   |   |
-                   +---+---+---+---+---+---+---+---+
-                3  |   |   |(N)|   |(B)|(Q)|   |*p*|
-                   +---+---+---+---+---+---+---+---+
-                2  |(P)|(P)|(P)|   |(B)|(P)|(P)|(P)|
-                   +---+---+---+---+---+---+---+---+
-                1  |(R)|   |   |   |(K)|   |   |(R)|
-                   +---+---+---+---+---+---+---+---+
-                     a   b   c   d   e   f   g   h""";
-
-
-        assertEquals(newBoard,
-                b.toString());
-        assertEquals("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N1BQ1p/PPP1BPPP/R3K2R b KQkq - 0 1",
-                b.getFEN());
-
-        b.undo();
-
-        assertEquals(before,
-                b.toString());
-    }
+//    public void testMove2() {
+//        Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+//        String before = b.toString();
+//        MoveGenerator mg = new MoveGenerator(b);
+//        List<Move> moves = mg.getWhiteMoves();
+//        b.move(new Move(11,
+//                20,
+//                QUITE_MOVE_FLAG));
+//        String newBoard = """
+//                   +---+---+---+---+---+---+---+---+
+//                8  |*r*|   |   |   |*k*|   |   |*r*|
+//                   +---+---+---+---+---+---+---+---+
+//                7  |*p*|   |*p*|*p*|*q*|*p*|*b*|   |
+//                   +---+---+---+---+---+---+---+---+
+//                6  |*b*|*n*|   |   |*p*|*n*|*p*|   |
+//                   +---+---+---+---+---+---+---+---+
+//                5  |   |   |   |(P)|(N)|   |   |   |
+//                   +---+---+---+---+---+---+---+---+
+//                4  |   |*p*|   |   |(P)|   |   |   |
+//                   +---+---+---+---+---+---+---+---+
+//                3  |   |   |(N)|   |(B)|(Q)|   |*p*|
+//                   +---+---+---+---+---+---+---+---+
+//                2  |(P)|(P)|(P)|   |(B)|(P)|(P)|(P)|
+//                   +---+---+---+---+---+---+---+---+
+//                1  |(R)|   |   |   |(K)|   |   |(R)|
+//                   +---+---+---+---+---+---+---+---+
+//                     a   b   c   d   e   f   g   h""";
+//
+//
+//        assertEquals(newBoard,
+//                b.toString());
+//        assertEquals("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N1BQ1p/PPP1BPPP/R3K2R b KQkq - 0 1",
+//                b.getFEN());
+//
+//        b.undo();
+//
+//        assertEquals(before,
+//                b.toString());
+//    }
 
     public void testPawnRookPromotionCaptureWhite() {
         Board b = new Board("1r6/P7/8/8/8/8/k6K w  - ");

@@ -943,18 +943,12 @@ class MoveGenerator {
 
     private List<Move> legalizeMoves(List<Move> pseudoLegalMoves) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        long all;
-        long me;
         int king;
         boolean isChecked;
         if (b.isWhitesTurn()) {
-            all = b.getOccupiedBitBoard();
-            me = b.getWhiteBitBoard();
             king = b.getWhiteKingSquare();
             isChecked = isWhiteChecked();
         } else {
-            all = b.getOccupiedBitBoard();
-            me = b.getBlackBitBoard();
             king = b.getBlackKingSquare();
             isChecked = isBlackChecked();
         }
@@ -972,41 +966,45 @@ class MoveGenerator {
             long moveBitBoard = 1L << m.getFrom();
 
             if ((moveBitBoard & xRayMoves) != 0) {
-                b.move(m);
-                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
+                Board newBoard = new Board(b);
+                newBoard.move(m);
+                MoveGenerator mg = new MoveGenerator(newBoard);
+                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
 //                    log.trace("{} is an illegal move.",
 //                            m);
-                }else {
+                } else {
                     legalMoves.add(m);
                 }
-                b.undo();
             } else if (m.getFlags() == EP_CAPTURE_FLAG.getFlag()) {
-                b.move(m);
-                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
+                Board newBoard = new Board(b);
+                newBoard.move(m);
+                MoveGenerator mg = new MoveGenerator(newBoard);
+                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
 //                    log.trace("{} is an illegal move.",
 //                            m);
-                }  else {
+                } else {
                     legalMoves.add(m);
                 }
-                b.undo();
             } else if (m.getFrom() == king) {
-                b.move(m);
-                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
+                Board newBoard = new Board(b);
+                newBoard.move(m);
+                MoveGenerator mg = new MoveGenerator(newBoard);
+                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
 //                    log.trace("{} is an illegal move.",
 //                            m);
                 } else {
                     legalMoves.add(m);
                 }
-                b.undo();
             } else if (isChecked) {
-                b.move(m);
-                if (b.isWhitesTurn() ? isBlackChecked() : isWhiteChecked()) {
+                Board newBoard = new Board(b);
+                newBoard.move(m);
+                MoveGenerator mg = new MoveGenerator(newBoard);
+                if (newBoard.isWhitesTurn() ? mg.isBlackChecked() : mg.isWhiteChecked()) {
 //                    log.trace("{} is an illegal move.",
 //                            m);
                 } else {
                     legalMoves.add(m);
                 }
-                b.undo();
             } else {
 //                log.trace("Move {} is not checked on board {}",
 //                        m,

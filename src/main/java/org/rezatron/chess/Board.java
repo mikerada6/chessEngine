@@ -4,10 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.constants.ChessPiece;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.rezatron.chess.constants.ChessConstants.*;
 import static org.rezatron.chess.constants.MoveFlags.*;
@@ -16,13 +13,6 @@ public
 class Board {
 
     private static final Logger log = LogManager.getLogger(Board.class);
-    private final List<BoardHistory> history;
-    //  private final List<String> enPassantTargetHistory;
-    private final int[] moves;
-    //  private long whitePawnBitBoard, whiteRookBitBoard, whiteKnightBitBoard, whiteBishopBitBoard, whiteKingBitBoard,
-//    whiteQueenBitBoard, blackRookBitBoard, blackKnightBitBoard, blackBishopBitBoard, blackKingBitBoard,
-//    blackQueenBitBoard, blackPawnBitBoard, whiteBitBoard, blackBitBoard, occupiedBitBoard, emptyBitBoard;
-//
     private final long[] bitboards = new long[16];
     private String enPassantTarget;
     private boolean blackKingSideCastle, blackQueenSideCastle, whiteKingSideCastle, whiteQueenSideCastle;
@@ -30,13 +20,12 @@ class Board {
     private boolean isWhitesTurn;
     private int moveCount;
 
+    private final Board parentBoard;
+
 
     public Board() {
         log.info("new  board");
         enPassantTarget = "-";
-        history = new ArrayList<>();
-//    enPassantTargetHistory = new LinkedList<>();
-        moves = new int[6300];
         bitboards[whitePawnBitBoard] = 65280L;
         bitboards[whiteRookBitBoard] = 129L;
         bitboards[whiteKnightBitBoard] = 66L;
@@ -54,21 +43,48 @@ class Board {
         blackKingSideCastle = blackQueenSideCastle = whiteKingSideCastle = whiteQueenSideCastle = true;
         fortyMoveCount = 0;
         isWhitesTurn = true;
-        // moves = "";
-        moveCount = 0;
-        updateHistory();
-        moveCount = 1;
 
         updateGlobalBitBoards();
+        moveCount++;
+        parentBoard=null;
+    }
+
+
+
+    public Board(Board b) {
+//        log.info("new  board from  another board");
+        enPassantTarget = "-";
+        bitboards[whitePawnBitBoard] = b.getWhitePawnBitBoard();
+        bitboards[whiteRookBitBoard] = b.getWhiteRookBitBoard();
+        bitboards[whiteKnightBitBoard] = b.getWhiteKnightBitBoard();
+        bitboards[whiteBishopBitBoard] = b.getWhiteBishopBitBoard();
+        bitboards[whiteQueenBitBoard] = b.getWhiteQueenBitBoard();
+        bitboards[whiteKingBitBoard] = b.getWhiteKingBitBoard();
+
+        bitboards[blackPawnBitBoard] = b.getBlackPawnBitBoard();
+        bitboards[blackRookBitBoard] = b.getBlackRookBitBoard();
+        bitboards[blackKnightBitBoard] = b.getBlackKnightBitBoard();
+        bitboards[blackBishopBitBoard] = b.getBlackBishopBitBoard();
+        bitboards[blackQueenBitBoard] = b.getBlackQueenBitBoard();
+        bitboards[blackKingBitBoard] = b.getBlackKingBitBoard();
+
+        whiteKingSideCastle = b.canWhiteKingSideCastle();
+        whiteQueenSideCastle = b.canWhiteQueenSideCastle();
+        blackKingSideCastle = b.canBlackKingSideCastle();
+        blackQueenSideCastle = b.canBlackQueenSideCastle();
+
+        fortyMoveCount = 0;
+        isWhitesTurn = b.isWhitesTurn;
+        moveCount=b.getMoveCount();
+
+        updateGlobalBitBoards();
+        moveCount++;
+        parentBoard=b;
     }
 
     public Board(String fenString) {
         enPassantTarget = "-";
         // not chess960 compatible
-
-        history = new LinkedList<>();
-//    enPassantTargetHistory = new ArrayList<>();
-        moves = new int[6300];
         bitboards[whitePawnBitBoard] = 0L;
         bitboards[whiteRookBitBoard] = 0L;
         bitboards[whiteKnightBitBoard] = 0L;
@@ -91,92 +107,40 @@ class Board {
         int boardIndex = 0;
         while (fenString.charAt(charIndex) != ' ') {
             switch (fenString.charAt(charIndex++)) {
-                case 'P':
-                    bitboards[whitePawnBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'p':
-                    bitboards[blackPawnBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'N':
-                    bitboards[whiteKnightBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'n':
-                    bitboards[blackKnightBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'B':
-                    bitboards[whiteBishopBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'b':
-                    bitboards[blackBishopBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'R':
-                    bitboards[whiteRookBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'r':
-                    bitboards[blackRookBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'Q':
-                    bitboards[whiteQueenBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'q':
-                    bitboards[blackQueenBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'K':
-                    bitboards[whiteKingBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case 'k':
-                    bitboards[blackKingBitBoard] |= squares[order[boardIndex++]];
-                    break;
-                case '/':
-                    break;
-                case '1':
-                    boardIndex++;
-                    break;
-                case '2':
-                    boardIndex += 2;
-                    break;
-                case '3':
-                    boardIndex += 3;
-                    break;
-                case '4':
-                    boardIndex += 4;
-                    break;
-                case '5':
-                    boardIndex += 5;
-                    break;
-                case '6':
-                    boardIndex += 6;
-                    break;
-                case '7':
-                    boardIndex += 7;
-                    break;
-                case '8':
-                    boardIndex += 8;
-                    break;
-                default:
-                    break;
+                case 'P' -> bitboards[whitePawnBitBoard] |= squares[order[boardIndex++]];
+                case 'p' -> bitboards[blackPawnBitBoard] |= squares[order[boardIndex++]];
+                case 'N' -> bitboards[whiteKnightBitBoard] |= squares[order[boardIndex++]];
+                case 'n' -> bitboards[blackKnightBitBoard] |= squares[order[boardIndex++]];
+                case 'B' -> bitboards[whiteBishopBitBoard] |= squares[order[boardIndex++]];
+                case 'b' -> bitboards[blackBishopBitBoard] |= squares[order[boardIndex++]];
+                case 'R' -> bitboards[whiteRookBitBoard] |= squares[order[boardIndex++]];
+                case 'r' -> bitboards[blackRookBitBoard] |= squares[order[boardIndex++]];
+                case 'Q' -> bitboards[whiteQueenBitBoard] |= squares[order[boardIndex++]];
+                case 'q' -> bitboards[blackQueenBitBoard] |= squares[order[boardIndex++]];
+                case 'K' -> bitboards[whiteKingBitBoard] |= squares[order[boardIndex++]];
+                case 'k' -> bitboards[blackKingBitBoard] |= squares[order[boardIndex++]];
+                case '1' -> boardIndex++;
+                case '2' -> boardIndex += 2;
+                case '3' -> boardIndex += 3;
+                case '4' -> boardIndex += 4;
+                case '5' -> boardIndex += 5;
+                case '6' -> boardIndex += 6;
+                case '7' -> boardIndex += 7;
+                case '8' -> boardIndex += 8;
+                default -> {
+                }
             }
         }
         isWhitesTurn = fenString.charAt(++charIndex) == 'w';
         charIndex += 2;
         while (fenString.charAt(charIndex) != ' ') {
             switch (fenString.charAt(charIndex++)) {
-                case '-':
-                    break;
-                case 'K':
-                    whiteKingSideCastle = true;
-                    break;
-                case 'Q':
-                    whiteQueenSideCastle = true;
-                    break;
-                case 'k':
-                    blackKingSideCastle = true;
-                    break;
-                case 'q':
-                    blackQueenSideCastle = true;
-                    break;
-                default:
-                    break;
+                case 'K' -> whiteKingSideCastle = true;
+                case 'Q' -> whiteQueenSideCastle = true;
+                case 'k' -> blackKingSideCastle = true;
+                case 'q' -> blackQueenSideCastle = true;
+                default -> {
+                }
             }
         }
 
@@ -191,12 +155,8 @@ class Board {
             enPassantTarget = fenString.substring(charIndex,
                     charIndex + 2);
         }
-
-        // the rest of the fenString is not yet utilized
-        // moves = "";
-        moveCount = 0;
-        updateHistory();
-        moveCount = 1;
+        moveCount++;
+        parentBoard=null;
     }
 
     private void updateGlobalBitBoards() {
@@ -216,77 +176,6 @@ class Board {
         bitboards[emptyBitBoard] = ~bitboards[occupiedBitBoard];
     }
 
-    public void undo() {
-        isWhitesTurn = !isWhitesTurn;
-
-//    enPassantTargetHistory.remove( enPassantTargetHistory.size() - 1 );
-//    enPassantTarget = enPassantTargetHistory.get( enPassantTargetHistory.size() - 1 );
-
-//    for (int i = 0; i < 17; i++) {
-//      history.remove( history.size() - 1 );
-//    }
-
-        history.remove(history.size() - 1);
-        BoardHistory historyTarget = history.get(history.size() - 1);
-
-        fortyMoveCount = (historyTarget.getFortyMoveCount());
-        // history.remove(history.size()-1);
-
-        blackQueenSideCastle = (historyTarget.isBlackQueenSideCastle());
-        // history.remove(history.size()-1);
-        blackKingSideCastle = (historyTarget.isBlackKingSideCastle());
-        // history.remove(history.size()-1);
-        whiteQueenSideCastle = (historyTarget.isWhiteQueenSideCastle());
-        // history.remove(history.size()-1);
-        whiteKingSideCastle = (historyTarget.isWhiteKingSideCastle());
-        // history.remove(history.size()-1);
-
-        bitboards[blackKingBitBoard] = historyTarget.getBlackKingBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[blackQueenBitBoard] = historyTarget.getBlackQueenBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[blackBishopBitBoard] = historyTarget.getBlackBishopBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[blackKnightBitBoard] = historyTarget.getBlackKnightBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[blackRookBitBoard] = historyTarget.getBlackRookBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[blackPawnBitBoard] = historyTarget.getBlackPawnBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[whiteKingBitBoard] = historyTarget.getWhiteKingBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[whiteQueenBitBoard] = historyTarget.getWhiteQueenBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[whiteBishopBitBoard] = historyTarget.getWhiteBishopBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[whiteKnightBitBoard] = historyTarget.getWhiteKnightBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[whiteRookBitBoard] = historyTarget.getWhiteRookBitBoard();
-        // history.remove(history.size()-1);
-
-        bitboards[whitePawnBitBoard] = historyTarget.getWhitePawnBitBoard();
-        // history.remove(history.size()-1);
-
-        enPassantTarget = historyTarget.getEnPassantTarget();
-        moveCount -= 1;
-
-        // wp + "," + wr + "," + wn + "," + wb + "," + wq
-        // + "," + wk + "," + bp + "," + br + "," + bn + "," + bb + ","
-        // + bq + "," + bk + "," + wkc + "," + wqc + "," + bkc + "," + bqc
-        // + "," + enPassantTarget + "," + fortyMoveCount
-
-        updateGlobalBitBoards();
-    }
 
     public void move(Move move) {
         moveCount++;
@@ -294,11 +183,6 @@ class Board {
         int to = move.getTo();
         enPassantTarget = "-";
         int flag = move.getFlags();
-//        log.trace("Move {} is a move from {} to {} with flags{}.",
-//                move,
-//                from,
-//                to,
-//                flag);
         ChessPiece fromPiece = pieceAtSquare(from);
         ChessPiece toPiece = pieceAtSquare(to);
 
@@ -319,16 +203,16 @@ class Board {
             fortyMoveCount = 0;
             if (flag == ROOK_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                bitboards[fromPiece.getBitBoardIndex()+1] += squares[to];
+                bitboards[fromPiece.getBitBoardIndex() + 1] += squares[to];
             } else if (flag == KNIGHT_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                bitboards[fromPiece.getBitBoardIndex()+2] += squares[to];
+                bitboards[fromPiece.getBitBoardIndex() + 2] += squares[to];
             } else if (flag == BISHOP_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                bitboards[fromPiece.getBitBoardIndex()+3] += squares[to];
+                bitboards[fromPiece.getBitBoardIndex() + 3] += squares[to];
             } else if (flag == QUEEN_PROMOTION_CAPTURE_FLAG.getFlag()) {
                 bitboards[fromPiece.getBitBoardIndex()] -= squares[to];
-                bitboards[fromPiece.getBitBoardIndex()+4] += squares[to];
+                bitboards[fromPiece.getBitBoardIndex() + 4] += squares[to];
             } else if (isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
                 bitboards[blackPawnBitBoard] -= squares[to - 8];
             } else if (!isWhitesTurn && flag == EP_CAPTURE_FLAG.getFlag()) {
@@ -352,16 +236,16 @@ class Board {
             bitboards[blackRookBitBoard] += (squares[59] - squares[56]);
         } else if (flag == ROOK_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            bitboards[fromPiece.getBitBoardIndex()+1] += squares[to];
+            bitboards[fromPiece.getBitBoardIndex() + 1] += squares[to];
         } else if (flag == KNIGHT_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            bitboards[fromPiece.getBitBoardIndex()+2] += squares[to];
+            bitboards[fromPiece.getBitBoardIndex() + 2] += squares[to];
         } else if (flag == BISHOP_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            bitboards[fromPiece.getBitBoardIndex()+3] += squares[to];
+            bitboards[fromPiece.getBitBoardIndex() + 3] += squares[to];
         } else if (flag == QUEEN_PROMOTION_FLAG.getFlag()) {
             bitboards[fromPiece.getBitBoardIndex()] -= squares[from];
-            bitboards[fromPiece.getBitBoardIndex()+4] += squares[to];
+            bitboards[fromPiece.getBitBoardIndex() + 4] += squares[to];
         }
 
         //set castle flags
@@ -388,19 +272,10 @@ class Board {
 
 
         isWhitesTurn = !isWhitesTurn;
-        updateHistory();
+//        updateHistory();
 
-
+        fortyMoveCount++;
         updateGlobalBitBoards();
-    }
-
-    private void updateHistory() {
-        BoardHistory bh = new BoardHistory(bitboards[whitePawnBitBoard], bitboards[whiteRookBitBoard], bitboards[whiteKnightBitBoard], bitboards[whiteBishopBitBoard],
-                bitboards[whiteQueenBitBoard], bitboards[whiteKingBitBoard], bitboards[blackPawnBitBoard], bitboards[blackRookBitBoard],
-                bitboards[blackKnightBitBoard], bitboards[blackBishopBitBoard], bitboards[blackQueenBitBoard], bitboards[blackKingBitBoard],
-                whiteKingSideCastle, whiteQueenSideCastle, blackKingSideCastle,
-                blackQueenSideCastle, fortyMoveCount, enPassantTarget);
-        history.add(bh);
     }
 
     public String toString() {
@@ -657,6 +532,14 @@ class Board {
 
     public int getBlackKingSquare() {
         return Long.numberOfTrailingZeros(bitboards[blackKingBitBoard]);
+    }
+
+    public int getMoveCount() {
+        return moveCount;
+    }
+
+    public Board getParentBoard() {
+        return parentBoard;
     }
 
     @Override

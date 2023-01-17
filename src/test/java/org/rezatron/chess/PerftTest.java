@@ -46,7 +46,6 @@ public class PerftTest extends TestCase {
 //  }
 
 //    public void testTime() {
-//       9.182245858-9.868474142	2 STDEV
 
 //        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //        ArrayList<String> t = new ArrayList<>();
