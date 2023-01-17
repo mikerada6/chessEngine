@@ -272,8 +272,6 @@ class Board {
 
 
         isWhitesTurn = !isWhitesTurn;
-//        updateHistory();
-
         fortyMoveCount++;
         updateGlobalBitBoards();
     }

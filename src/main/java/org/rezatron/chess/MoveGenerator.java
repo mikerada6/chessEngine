@@ -22,10 +22,6 @@ class MoveGenerator {
         this.b = b;
     }
 
-    public MoveGenerator() {
-        this.b = new Board();
-    }
-
     public List<Move> getMoves() {
         List<Move> moves;
         if (b.isWhitesTurn()) moves = getWhiteMoves();

@@ -22,13 +22,10 @@ public class Perft {
         }
         long nodes = 0L;
 
-        if (!moveList.isEmpty()) {
-            for (Move move : moveList) {
-                Board newBoard = new Board(board);
-                newBoard.move(move);
-                nodes += diveIn(newBoard, depth - 1);
-//                board.undo();
-            }
+        for (Move move : moveList) {
+            Board newBoard = new Board(board);
+            newBoard.move(move);
+            nodes += diveIn(newBoard, depth - 1);
         }
         return nodes;
     }
@@ -85,7 +82,6 @@ public class Perft {
                 Board newBoard = new Board(board);
                 newBoard.move(move);
                 nodes += diveIn(newBoard, depth - 1);
-//                board.undo();
             }
         }
 
