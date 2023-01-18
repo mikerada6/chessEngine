@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.Board;
 import org.rezatron.chess.Move;
 import org.rezatron.chess.MoveGenerator;
+import org.rezatron.chess.MoveList;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +19,7 @@ public class Perft {
 
     private static long diveIn(Board board, int depth) {
         MoveGenerator mg = new MoveGenerator(board);
-        List<Move> moveList = mg.getMoves();
+      MoveList moveList = mg.getMoves();
         if (moveList.size() == 0 && depth != 0) {
             return 0;
         } else if (moveList.size() == 0 || depth == 1) {
@@ -26,7 +27,9 @@ public class Perft {
         }
         long nodes = 0L;
 
-        for (Move move : moveList) {
+      for(int i=0;i<moveList.size();i++)
+      {
+        Move move = moveList.get(i);
             Board newBoard = new Board(board);
             newBoard.move(move);
             nodes += diveIn(newBoard, depth - 1);
@@ -39,14 +42,16 @@ public class Perft {
                 + "\n\t Depth: " + depth);
 
         MoveGenerator mg = new MoveGenerator(board);
-        List<Move> moveList = mg.getMoves();
+        MoveList moveList = mg.getMoves();
 
         String[] ary1 = new String[moveList.size()];
         long[] count = new long[ary1.length];
         StringBuilder answer = new StringBuilder();
         int temp = 0;
         if (depth <= 1) {
-            for (Move m : moveList) {
+          for(int i=0;i<moveList.size();i++)
+          {
+            Move m = moveList.get(i);
                 answer.append(m.toString()).append(": ").append(1).append("\n");
             }
             return answer.toString();
@@ -54,7 +59,9 @@ public class Perft {
         if (moveList.size() == 0) {
             return answer.toString();
         }
-        for (Move move : moveList) {
+      for(int i=0;i<moveList.size();i++)
+      {
+        Move move = moveList.get(i);
             ary1[temp] = move.toString();
             Board newBoard = new Board(board);
             newBoard.move(move);
@@ -74,7 +81,7 @@ public class Perft {
 
     public static long perft(Board board, int depth, Executor executor) {
         MoveGenerator mg = new MoveGenerator(board);
-        List<Move> moveList = mg.getMoves();
+        MoveList moveList = mg.getMoves();
         if (depth == 1) {
             return moveList.size();
         }

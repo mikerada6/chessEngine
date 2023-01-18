@@ -22,30 +22,29 @@ class MoveGenerator {
         this.b = b;
     }
 
-    public List<Move> getMoves() {
-        List<Move> moves;
+    public MoveList getMoves() {
+      MoveList  moves = new MoveList();
         if (b.isWhitesTurn()) moves = getWhiteMoves();
         else moves = getBlackMoves();
         return legalizeMoves(moves);
     }
 
-    public List<Move> getWhiteMoves() {
-        List<Move> moves = new LinkedList<>();
+    public MoveList getWhiteMoves() {
+      MoveList  moves = new MoveList();
         moves.addAll(getWhitePawnMoves());
         moves.addAll(getWhiteNonPawnMoves());
         return moves;
     }
 
-    public List<Move> getBlackMoves() {
-        List<Move> moves = new LinkedList<>();
+    public MoveList getBlackMoves() {
+      MoveList  moves = new MoveList();
         moves.addAll(getBlackPawnMoves());
         moves.addAll(getBlackNonPawnMoves());
         return moves;
     }
 
-    private List<Move> getWhitePawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getWhitePawnMoves() {
+      MoveList  moves = new MoveList();
 
         long wp = b.getWhitePawnBitBoard();
         long them = b.getBlackBitBoard();
@@ -253,18 +252,13 @@ class MoveGenerator {
 //                    move);
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-
-//        log.debug("white pawn movement took : {}",
-//                stopwatch);
 
         return moves;
     }
 
-    public List<Move> getBlackPawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
+    public MoveList getBlackPawnMoves() {
 
-        List<Move> moves = new LinkedList<>();
+      MoveList  moves = new MoveList();
 
         long bp = b.getBlackPawnBitBoard();
         long empty = b.getEmptyBitBoard();
@@ -471,10 +465,6 @@ class MoveGenerator {
 //                    move);
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-
-        log.debug("white pawn movement took : {}",
-                stopwatch);
 
         return moves;
     }
@@ -523,9 +513,8 @@ class MoveGenerator {
         return letterSquaresHashMap.get(enPassantTarget) & pawnAttackRight(true);
     }
 
-    private List<Move> getWhiteNonPawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getWhiteNonPawnMoves() {
+      MoveList  moves = new MoveList();
 
         for (long temp = b.getWhiteRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
@@ -571,16 +560,11 @@ class MoveGenerator {
                     QUEEN_CASTLE_FLAG));
         }
 
-        stopwatch.stop(); // optional
-
-//        log.debug("white non pawn movement took : {}",
-//                stopwatch);
         return moves;
     }
 
-    private List<Move> getBlackNonPawnMoves() {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getBlackNonPawnMoves() {
+      MoveList  moves = new MoveList();
         for (long temp = b.getBlackRookBitBoard(); temp != 0; temp -= 1L << Long.numberOfTrailingZeros(temp)) {
             int square = Long.numberOfTrailingZeros(temp);
             moves.addAll(getRookMoves((square)));
@@ -624,17 +608,11 @@ class MoveGenerator {
                     58,
                     QUEEN_CASTLE_FLAG));
         }
-
-        stopwatch.stop(); // optional
-
-        log.debug("black non pawn movement took : {}",
-                stopwatch);
         return moves;
     }
 
-    private List<Move> getRookMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getRookMoves(int square) {
+      MoveList  moves = new MoveList();
         long movesBitBoard = getRookMovement(square);
 
         movesBitBoard = removeLikeSquares(movesBitBoard);
@@ -669,10 +647,6 @@ class MoveGenerator {
 
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-//
-//        log.debug("rook movement took : {}",
-//                stopwatch);
         return moves;
     }
 
@@ -695,9 +669,8 @@ class MoveGenerator {
         return (one & fileMask[square % 8]) + (two & rankMask[square / 8]);
     }
 
-    private List<Move> getKnightMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getKnightMoves(int square) {
+      MoveList  moves = new MoveList();
         long movesBitBoard = getKnightMovement(square);
         movesBitBoard = removeLikeSquares(movesBitBoard);
 
@@ -732,10 +705,6 @@ class MoveGenerator {
 
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-
-//        log.debug("knight movement took : {}",
-//                stopwatch);
         return moves;
     }
 
@@ -755,9 +724,8 @@ class MoveGenerator {
         return movesBitBoard;
     }
 
-    private List<Move> getBishopMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getBishopMoves(int square) {
+      MoveList  moves = new MoveList();
         long movesBitBoard = getBishopMovement(square);
         movesBitBoard = removeLikeSquares(movesBitBoard);
 
@@ -792,10 +760,6 @@ class MoveGenerator {
 
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-
-        log.debug("bishop movement took : {}",
-                stopwatch);
         return moves;
     }
 
@@ -824,10 +788,8 @@ class MoveGenerator {
         return movesBitBoard & (b.getWhiteBitBoard() | b.getEmptyBitBoard());
     }
 
-    private List<Move> getQueenMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
-
+    private MoveList getQueenMoves(int square) {
+        MoveList  moves = new MoveList();
         long movesBitBoard = getQueenMovement(square);
 
         movesBitBoard = removeLikeSquares(movesBitBoard);
@@ -863,10 +825,6 @@ class MoveGenerator {
 
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-
-        log.debug("queen movement took : {}",
-                stopwatch);
         return moves;
     }
 
@@ -874,9 +832,8 @@ class MoveGenerator {
         return getBishopMovement(square) | getRookMovement(square);
     }
 
-    private List<Move> getKingMoves(int square) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Move> moves = new LinkedList<>();
+    private MoveList getKingMoves(int square) {
+      MoveList  moves = new MoveList();
         long movesBitBoard = getKingMovement(square);
         if ((((b.getWhiteBitBoard() >> square) & 1) == 1))
             movesBitBoard &= (b.getBlackBitBoard() | b.getEmptyBitBoard());
@@ -913,10 +870,6 @@ class MoveGenerator {
 
             moves.add(move);
         }
-        stopwatch.stop(); // optional
-
-        log.debug("king movement took : {}",
-                stopwatch);
         return moves;
     }
 
@@ -936,8 +889,7 @@ class MoveGenerator {
         return movesBitBoard;
     }
 
-    private List<Move> legalizeMoves(List<Move> pseudoLegalMoves) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
+    private MoveList legalizeMoves(MoveList pseudoLegalMoves) {
         int king;
         boolean isChecked;
         if (b.isWhitesTurn()) {
@@ -953,8 +905,11 @@ class MoveGenerator {
         long xRayMoves = rookXRayMoves | bishopXRayMoves;
 
 
-        List<Move> legalMoves = new LinkedList<>();
-        for (Move m : pseudoLegalMoves) {
+        MoveList  legalMoves = new MoveList();
+//        for (Move m : pseudoLegalMoves) {
+      for(int i=0;i<pseudoLegalMoves.size();i++)
+      {
+        Move m = pseudoLegalMoves.get(i);
             long moveBitBoard = 1L << m.getFrom();
 
             if ((moveBitBoard & xRayMoves) != 0) {
@@ -976,15 +931,11 @@ class MoveGenerator {
                 legalMoves.add(m);
             }
         }
-        stopwatch.stop(); // optional
-
-//        log.debug("legalizeMoves took : {}",
-//                stopwatch);
         return legalMoves;
     }
 
   private
-  void testMove(List<Move> legalMoves, Move m) {
+  void testMove(MoveList legalMoves, Move m) {
     Board newBoard = new Board(b);
     newBoard.move( m );
     MoveGenerator mg = new MoveGenerator(newBoard);

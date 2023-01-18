@@ -58,24 +58,24 @@ public class PerftTest extends TestCase {
 //    System.out.println(mg.getMoves());
 //  }
 
-//    public void testTime() {
-//
-//        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-//        ArrayList<String> t = new ArrayList<>();
-//        for( int p = 0; p< 100; p++) {
-//            Stopwatch stopwatch = Stopwatch.createStarted();
-//            runPerftTest(119060324, b, 6);
-//            stopwatch.stop();
-//            t.add(stopwatch.toString());
-//        }
-//        for(String temp: t)
-//        {
-//            for(String x: temp.split(","))
-//                for(String y: x.split(" s"))
-//                    System.out.println(y);
-//        }
-//
-//    }
+    public void testTime() {
+
+        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        ArrayList<String> t = new ArrayList<>();
+        for( int p = 0; p< 100; p++) {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            runPerftTest(119060324, b, 6);
+            stopwatch.stop();
+            t.add(stopwatch.toString());
+        }
+        for(String temp: t)
+        {
+            for(String x: temp.split(","))
+                for(String y: x.split(" s"))
+                    System.out.println(y);
+        }
+
+    }
 
     public void runPerftTest(long expected, Board b, int depth) {
 

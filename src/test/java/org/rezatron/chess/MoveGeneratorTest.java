@@ -18,7 +18,7 @@ class MoveGeneratorTest extends TestCase {
         Board b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         System.out.println(b);
         MoveGenerator mg = new MoveGenerator(b);
-        List<Move> moves = mg.getWhiteMoves();
+        MoveList moves = mg.getWhiteMoves();
         System.out.println(moves);
         assertEquals(48,
                 moves.size());
@@ -29,7 +29,7 @@ class MoveGeneratorTest extends TestCase {
         Board b = new Board();
         System.out.println(b);
         MoveGenerator mg = new MoveGenerator(b);
-        List<Move> moves = mg.getWhiteMoves();
+        MoveList moves = mg.getWhiteMoves();
         assertEquals(20,
                 moves.size());
 
@@ -102,7 +102,7 @@ class MoveGeneratorTest extends TestCase {
         Board b = new Board("r6r/1k6/8/8/8/8/1K6/R6R w - - 0 1");
         System.out.println(b);
         MoveGenerator mg = new MoveGenerator(b);
-        List<Move> moves = mg.getMoves();
+      MoveList moves = mg.getMoves();
         assertEquals(31,
                 moves.size());
 
