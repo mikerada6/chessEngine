@@ -5,8 +5,13 @@ import org.apache.logging.log4j.Logger;
 import org.rezatron.chess.Board;
 import org.rezatron.chess.Move;
 import org.rezatron.chess.MoveGenerator;
+import org.rezatron.chess.MoveList;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+import static java.util.stream.Collectors.toList;
 
 public class Perft {
 
@@ -14,7 +19,7 @@ public class Perft {
 
     private static long diveIn(Board board, int depth) {
         MoveGenerator mg = new MoveGenerator(board);
-        List<Move> moveList = mg.getMoves();
+      MoveList moveList = mg.getMoves();
         if (moveList.size() == 0 && depth != 0) {
             return 0;
         } else if (moveList.size() == 0 || depth == 1) {
@@ -22,12 +27,12 @@ public class Perft {
         }
         long nodes = 0L;
 
-        if (!moveList.isEmpty()) {
-            for (Move move : moveList) {
-                board.move(move);
-                nodes += diveIn(board, depth - 1);
-                board.undo();
-            }
+      for(int i=0;i<moveList.size();i++)
+      {
+        Move move = moveList.get(i);
+            Board newBoard = new Board(board);
+            newBoard.move(move);
+            nodes += diveIn(newBoard, depth - 1);
         }
         return nodes;
     }
@@ -35,20 +40,33 @@ public class Perft {
     public static String divide(Board board, int depth) {
         System.out.println("Divide for board :" + board.getFEN()
                 + "\n\t Depth: " + depth);
+
         MoveGenerator mg = new MoveGenerator(board);
-        List<Move> moveList = mg.getMoves();
+        MoveList moveList = mg.getMoves();
+
         String[] ary1 = new String[moveList.size()];
         long[] count = new long[ary1.length];
         StringBuilder answer = new StringBuilder();
         int temp = 0;
+        if (depth <= 1) {
+          for(int i=0;i<moveList.size();i++)
+          {
+            Move m = moveList.get(i);
+                answer.append(m.toString()).append(": ").append(1).append("\n");
+            }
+            return answer.toString();
+        }
         if (moveList.size() == 0) {
             return answer.toString();
         }
-        for (Move move : moveList) {
+      for(int i=0;i<moveList.size();i++)
+      {
+        Move move = moveList.get(i);
             ary1[temp] = move.toString();
-            board.move(move);
+            Board newBoard = new Board(board);
+            newBoard.move(move);
             count[temp] = diveIn(board, depth - 1);
-            board.undo();
+//            board.undo();
             temp++;
         }
         int sum = 0;
@@ -61,21 +79,36 @@ public class Perft {
     }
 
 
-    public static long perft(Board board, int depth) {
+    public static long perft(Board board, int depth, Executor executor) {
         MoveGenerator mg = new MoveGenerator(board);
-        List<Move> moveList = mg.getMoves();
+        MoveList moveList = mg.getMoves();
         if (depth == 1) {
             return moveList.size();
         }
         long nodes = 0;
         if (!moveList.isEmpty()) {
-            for (Move move : moveList) {
-                board.move(move);
-                nodes += diveIn(board, depth - 1);
-                board.undo();
-            }
+
+          List<CompletableFuture<Long>> futureNodes = moveList.stream()
+                                                              .map( m -> CompletableFuture.supplyAsync( () -> getNodeCount( board,
+                                                                                                                            m,
+                                                                                                                            depth ),
+                                                                                                        executor ) )
+                                                              .collect( toList() );
+          return futureNodes.stream().map( CompletableFuture::join ).reduce( Long.valueOf( 0 ),
+                                                                             Long::sum );
+//            for (Move move : moveList) {
+//                nodes += getNodeCount(board,move, depth);
+//            }
         }
 
         return nodes;
     }
+
+  private static long getNodeCount( Board board,
+                                    Move move,
+                                    int depth ){
+    Board newBoard = new Board(board);
+    newBoard.move(move);
+    return diveIn(newBoard, depth - 1);
+  }
 }

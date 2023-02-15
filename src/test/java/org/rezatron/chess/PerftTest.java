@@ -4,17 +4,30 @@ import com.google.common.base.Stopwatch;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.rezatron.chess.constants.MoveFlags;
 import org.rezatron.util.Perft;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static org.rezatron.util.Perft.perft;
 
 public class PerftTest extends TestCase {
 
     private static final Logger log = LogManager.getLogger(PerftTest.class);
+    private Executor executor;
+
+    @BeforeEach
+    public void setUp()
+    {
+      int threadCount = 5;
+      log.info("Making new executor with {} threads.", threadCount);
+      executor= Executors.newFixedThreadPool( threadCount);
+    }
+
 
 //    public void testDivide1() {
 //        Board b = new Board("8/Pk6/8/8/8/8/6Kp/8 w - - 0 1");
@@ -45,29 +58,29 @@ public class PerftTest extends TestCase {
 //    System.out.println(mg.getMoves());
 //  }
 
-//    public void testTime() {
-//       9.182245858-9.868474142	2 STDEV
+    public void testTime() {
 
-//        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-//        ArrayList<String> t = new ArrayList<>();
-//        for( int p = 0; p< 100; p++) {
-//            Stopwatch stopwatch = Stopwatch.createStarted();
-//            runPerftTest(119060324, b, 6);
-//            stopwatch.stop();
-//            t.add(stopwatch.toString());
-//        }
-//        for(String temp: t)
-//        {
-//            for(String x: temp.split(","))
-//                for(String y: x.split(" s"))
-//                    System.out.println(y);
-//        }
-//
-//    }
+        Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        ArrayList<String> t = new ArrayList<>();
+        for( int p = 0; p< 100; p++) {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            runPerftTest(119060324, b, 6);
+            stopwatch.stop();
+            t.add(stopwatch.toString());
+        }
+        for(String temp: t)
+        {
+            for(String x: temp.split(","))
+                for(String y: x.split(" s"))
+                    System.out.println(y);
+        }
+
+    }
 
     public void runPerftTest(long expected, Board b, int depth) {
+
         Stopwatch stopwatch = Stopwatch.createStarted();
-        long nodes = perft(b, depth);
+        long nodes = perft(b, depth,executor);
         stopwatch.stop(); // optional
 
         if (nodes == expected)
@@ -79,7 +92,8 @@ public class PerftTest extends TestCase {
     }
 
 
-    public void testPerft001() {
+
+  public void testPerft001() {
         Board b = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         log.info("fen: {}", b.getFEN());
         runPerftTest(20, b, 1);
